@@ -232,7 +232,7 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
 
     m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
     this->setScale(80 / this->getContentHeight());
-    this->setContentSize(80 / this->getContentHeight() * this->getContentWidth(), 80);
+    this->setContentSize({80 / this->getContentHeight() * this->getContentWidth(), 80});
 
     m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png");
     if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); return false;}
