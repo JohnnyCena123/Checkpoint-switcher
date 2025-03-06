@@ -1,0 +1,44 @@
+{
+	"geode": "4.2.0",
+	"gd": {
+		"win": "2.2074",
+		"android": "2.2074",
+		"mac": "2.2074",
+		"ios": "2.2074"
+	},
+	"id": "johnny_cena.checkpoint_switcher",
+	"name": "Checkpoint switcher",
+	"version": "v0.0.0",
+	"developer": "Johnny Cena",
+	"description": "Like startpos switcher, but for checkpoints!",
+	"resources": {
+		"sprites": [
+			"Assets/*.png"
+		]
+	},
+	"dependencies": {
+  		"alphalaneous.pages_api": ">=v1.4.8"
+	},
+	"settings": {
+		"EnablePreviews": {
+			"name": "Enable checkpoint previews",
+			"description": "Saves a screenshot each time a checkpoint is placed, and shows it to you in the switcher popup.",
+			"type": "bool",
+			"default": false,
+			"enable-if": "false",
+			"enable-if-description": "This feature is coming soon!"
+		},
+		"EnableUI": {
+			"name": "Enable switcher UI",
+			"description": "Enables buttons much like the buttons in most startpos switchers.",
+			"type": "bool",
+			"default": false
+		},
+		"EnableKeybinds": {
+			"name": "Enable switcher keybinds",
+			"description": "Enables keybinds for switching between checkpoints.",
+			"type": "bool",
+			"default": false
+		}
+	}
+}
