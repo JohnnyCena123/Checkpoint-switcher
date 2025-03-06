@@ -8,7 +8,7 @@
 	},
 	"id": "johnny_cena.checkpoint_switcher",
 	"name": "Checkpoint switcher",
-	"version": "v0.0.0",
+	"version": "v1.0.0",
 	"developer": "Johnny Cena",
 	"description": "Like startpos switcher, but for checkpoints!",
 	"resources": {
