@@ -108,7 +108,7 @@ bool CheckpointSwitcherLayer::setup() {
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite->setOpacity(155);
-    m_applyButtonDisabledSprite->setColor(isEnabled ? ccWHITE : ccGRAY);
+    m_applyButtonDisabledSprite->setColor(ccGRAY);
     m_applyButton = CCMenuItemSpriteExtra::create(m_applyButtonEnabledSprite, m_applyButtonDisabledSprite, this, menu_selector(CheckpointSwitcherLayer::onApply));
     m_applyButton->setEnabled(false);
     m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, ccp(0, m_applyButton->getContentHeight() / 2.f + 10.f));
