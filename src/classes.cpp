@@ -239,8 +239,9 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
 bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) {
     m_mainNode = CCNode::create();
     m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
+    if (m_checkpointSprite) m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
+    m_mainNode->setContentSize(m_checkpointSprite->getContentSize());
     m_mainNode->addChild(m_checkpointSprite);
-    if (m_checkpointSprite) m_mainNode->setScale(80 / m_checkpointSprite->getContentHeight());
     
     if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) return false;
 
