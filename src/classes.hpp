@@ -43,7 +43,7 @@ class CheckpointSwitcherLayer : public Popup<> {
 
         void selectCheckpoint(CheckpointObject* checkpoint);
         
-        void toggleApplyButton(bool isEnabled);
+        void enableApplyButton();
 
         CCArray* m_buttonsArray;
 
