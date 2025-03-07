@@ -32,17 +32,18 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void resume() {
         PlayLayer::resume();
-        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+        if (m_fields->m_selectedCheckpoint) { 
+            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+        }
     }
 
     void resumeAndRestart(bool p0) {
         PlayLayer::resumeAndRestart(p0);
-        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-    }
-
-    void resetLevel() {
-        PlayLayer::resetLevel();
-        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+        if (m_fields->m_selectedCheckpoint) { 
+            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+        }
     }
 
     bool getIsPracticeMode() {
@@ -104,7 +105,7 @@ bool CheckpointSwitcherLayer::setup() {
     m_toggleSwitcherButtonLabel->setContentWidth(m_toggleSwitcherButtonLabel->getContentWidth() / 3);
     m_toggleSwitcherButtonLabel->setContentHeight(m_toggleSwitcherButtonLabel->getContentHeight() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
-    m_mainLayer->addChild/* AtPosition */(m_toggleSwitcherButtonLabel/* , Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f) */);
+    m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
@@ -236,9 +237,12 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
     
     
 bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) {
+    m_mainNode = CCNode::create();
     m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
-    if (m_checkpointSprite) m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
-    if (!CCMenuItemSpriteExtra::init(m_checkpointSprite, m_checkpointSprite, this, menu_selector(CheckpointSelectorButton::onSelectButton))) return false;
+    m_mainNode->addChild(m_checkpointSprite);
+    if (m_checkpointSprite) m_mainNode->setScale(80 / m_checkpointSprite->getContentHeight());
+    
+    if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) return false;
 
     m_checkpoint = checkpoint;
 
