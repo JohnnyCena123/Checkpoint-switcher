@@ -12,7 +12,7 @@ class CheckpointSwitcherLayer : public Popup<> {
         
         CCSprite* m_toggleSwitcherButtonSprite;
         CCSprite* m_toggleSwitcherButtonCheckmarkSprite;
-        CCLabelBMFont* m_toggleSwitcherButtonLabel;
+        CCNode* m_toggleSwitcherButtonLabel;
         CCMenuItemSpriteExtra* m_toggleSwitcherButton;
 
         CCMenu* m_checkpointSelectorMenu;
