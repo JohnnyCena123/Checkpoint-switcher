@@ -20,24 +20,29 @@ class $modify(MyPlayLayer, PlayLayer) {
         CheckpointObject* m_selectedCheckpoint = nullptr;
     };
 
-    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
-        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+//    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
+//        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
         
-        return true;
-    } 
+//        return true;
+//    } 
 
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
     }
 
     void resume() {
-        if (m_fields->m_selectedCheckpoint) m_currentCheckpoint = m_fields->m_selectedCheckpoint;
         PlayLayer::resume();
+        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
 
-    void resumeAndRestart(bool p0) {
-        if (m_fields->m_selectedCheckpoint) m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+    void resumeAndRestart(bool p0) 
         PlayLayer::resumeAndRestart(p0);
+        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+    }
+
+    void resetLevel() {
+        PlayLayer::resetLevel();
+        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
 
     bool getIsPracticeMode() {
@@ -96,13 +101,13 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt");
     m_toggleSwitcherButtonLabel->setScale(0.333f);
+    m_toggleSwitcherButtonLabel->setContentSizd(m_toggleSwitcherButtonLabel->getContentSize() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(50.f, 10.f));
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite->setOpacity(155);
-    m_applyButtonDisabledSprite->setColor(ccGRAY);
     m_applyButton = CCMenuItemSpriteExtra::create(m_applyButtonEnabledSprite, m_applyButtonDisabledSprite, this, menu_selector(CheckpointSwitcherLayer::onApply));
     m_applyButton->setEnabled(false);
     m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, ccp(0, m_applyButton->getContentHeight() / 2.f + 10.f));
@@ -170,7 +175,7 @@ bool CheckpointSwitcherLayer::setup() {
     m_toggleSwitcherButtonLabel->setID("toggle-switcher-label");
     m_toggleSwitcherButton->setID("toggle-checkpoint-switcher-button");
     m_applyButtonEnabledSprite->setID("apply-button-enabled-sprite");
-    m_applyButtonDisabledSprite->setID("apply-button-enabled-sprite");
+    m_applyButtonDisabledSprite->setID("apply-button-disabled-sprite");
     m_applyButton->setID("apply-button");
     m_checkpointSelectorMenu->setID("checkpoint-selector-menu");
 
@@ -199,6 +204,8 @@ void CheckpointSwitcherLayer::selectCheckpoint(CheckpointObject* checkpoint) {
 
 void CheckpointSwitcherLayer::toggleApplyButton(bool isEnabled) {
     m_applyButton->setEnabled(isEnabled);
+	m_applyButtonEnabledSprite->setColor(isEnabled ? ccWHITE : ccGRAY);
+	m_applyButtonEnabledSprite->setOpacity(isEnabled ? 255 : 155);
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::create() {
@@ -226,13 +233,10 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
     
 bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) {
     m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
+    if (m_checkpointSprite) m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
     if (!CCMenuItemSpriteExtra::init(m_checkpointSprite, m_checkpointSprite, this, menu_selector(CheckpointSelectorButton::onSelectButton))) return false;
 
     m_checkpoint = checkpoint;
-
-    m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
-    this->setScale(80 / this->getContentHeight());
-    this->setContentSize({80 / this->getContentHeight() * this->getContentWidth(), 80});
 
     m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png");
     if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); return false;}
@@ -275,7 +279,7 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
     this->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, 1.25f), 2.f));
 
     CheckpointSwitcherLayer::get()->m_selectedButton = this;
-}
+} 
 
 void CheckpointSelectorButton::setOutlineVisible(bool isVisible) {
     m_checkpointOutline->setVisible(isVisible);
