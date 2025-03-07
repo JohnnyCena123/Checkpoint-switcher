@@ -35,7 +35,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
 
-    void resumeAndRestart(bool p0) 
+    void resumeAndRestart(bool p0) {
         PlayLayer::resumeAndRestart(p0);
         if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
