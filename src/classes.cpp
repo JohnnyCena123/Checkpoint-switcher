@@ -116,9 +116,9 @@ bool CheckpointSwitcherLayer::setup() {
     
     auto toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt"); if (!m_toggleSwitcherButtonLabel) {log::error("toggle switcher button label failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButtonLabel = CCNode::create();
-    m_toggleSwitcherButtonLabel->addChild(toggleSwitcherButtonLabel);
+    m_toggleSwitcherButtonLabel->addChildAtPosition(toggleSwitcherButtonLabel, Anchor::Center);
     m_toggleSwitcherButtonLabel->setScale(0.33333f);
-    m_toggleSwitcherButtonLabel->setContentSize(m_toggleSwitcherButtonLabel->getContentSize() / 3);
+    m_toggleSwitcherButtonLabel->setContentSize(toggleSwitcherButtonLabel->getContentWidth() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
 
@@ -309,7 +309,10 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
 } 
 
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
-    if (toScaleUp != m_isScaledUp) m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, toScaleUp ? 1.25f : 0.8f), 2.f));
+    if (toScaleUp != m_isScaledUp) {
+        m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, toScaleUp ? 1.25f : 0.8f), 2.f));
+        m_isScaledUp = toScaleUp;
+    }
 }
 
 void CheckpointSelectorButton::setOutlineVisible(bool isVisible) {
