@@ -300,20 +300,14 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
     if (lastSelectedButton != nullptr) lastSelectedButton->setOutlineVisible(false);
     this->setOutlineVisible(true);
 
-    lastSelectedButton->changeScale(false);
-    this->changeScale(true);
+    if (lastSelectedButton != nullptr) lastSelectedButton->changeScale(false);
++   this->changeScale(true);
 
     CheckpointSwitcherLayer::get()->m_selectedButton = this;
 } 
 
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
-    log::debug("toScaleUp is {} and m_isScaledUp is {}", toScaleUp, m_isScaledUp);
-    // if (toScaleUp != m_isScaledUp) 
-    // m_checkpointSprite->runAction(
-    // CCEaseInOut::create(
-    // CCScaleBy::create(0.1f,
-    //  toScaleUp ? 1.25f : 0.8f)
-    // , 2.f));
+    if (toScaleUp != m_isScaledUp) m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, toScaleUp ? 1.25f : 0.8f), 2.f));
 }
 
 void CheckpointSelectorButton::setOutlineVisible(bool isVisible) {
