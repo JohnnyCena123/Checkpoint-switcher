@@ -18,6 +18,8 @@ class $modify(MyPlayLayer, PlayLayer) {
         bool m_isPracticeMode = false;
 
         CheckpointObject* m_selectedCheckpoint = nullptr;
+
+        bool m_hasCheckpointChanged = false;
     };
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
@@ -32,25 +34,28 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void resume() {
         PlayLayer::resume();
-        if (m_fields->m_selectedCheckpoint) { 
+        if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+            m_fields->m_hasCheckpointChanged = true;
         }
     }
 
     void resumeAndRestart(bool p0) {
         PlayLayer::resumeAndRestart(p0);
-        if (m_fields->m_selectedCheckpoint) { 
+        if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+            m_fields->m_hasCheckpointChanged = true;
         }
     }
 
     void resetLevel() {
         PlayLayer::resetLevel();
-        if (m_fields->m_selectedCheckpoint) { 
+        if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+            m_fields->m_hasCheckpointChanged = true;
         }
     }
 
@@ -206,9 +211,7 @@ void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
 
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_currentPlayLayer->setCheckpoint(m_selectedCheckpoint);
-    m_applyButton->setEnabled(false);
-    m_applyButton->setOpacity(155);
-    m_applyButton->setColor(ccGRAY);
+    m_currentPlayLayer->m_fields->m_hasCheckpointChanged = true;
 }
 
 void CheckpointSwitcherLayer::selectCheckpoint(CheckpointObject* checkpoint) {
