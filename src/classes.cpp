@@ -187,7 +187,7 @@ bool CheckpointSwitcherLayer::setup() {
 
     }
 
-    
+
     
     m_toggleSwitcherButtonSprite->setID("toggle-switcher-checkbox");
     m_toggleSwitcherButtonCheckmarkSprite->setID("toggle-switcher-checkbox-checkmark");
@@ -263,6 +263,8 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
 
     m_checkpoint = checkpoint;
 
+    m_isScaledUp = false;
+
     m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png"); if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); hasFailed = true;}
     m_checkpointOutline->setVisible(false);
     m_checkpointOutline->setColor(ccc3(255, 243, 69));
@@ -305,7 +307,13 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
 } 
 
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
-    if (toScaleUp != m_isScaledUp) m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, toScaleUp ? 1.25f : 0.8f), 2.f));
+    log::debug("toScaleUp is {} and m_isScaledUp is {}", toScaleUp, m_isScaledUp);
+    // if (toScaleUp != m_isScaledUp) 
+    // m_checkpointSprite->runAction(
+    // CCEaseInOut::create(
+    // CCScaleBy::create(0.1f,
+    //  toScaleUp ? 1.25f : 0.8f)
+    // , 2.f));
 }
 
 void CheckpointSelectorButton::setOutlineVisible(bool isVisible) {
