@@ -37,7 +37,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
-            m_fields->m_hasCheckpointChanged = true;
+            m_fields->m_hasCheckpointChanged = false;
         }
     }
 
@@ -46,7 +46,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
-            m_fields->m_hasCheckpointChanged = true;
+            m_fields->m_hasCheckpointChanged = false;
         }
     }
 
@@ -55,7 +55,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
-            m_fields->m_hasCheckpointChanged = true;
+            m_fields->m_hasCheckpointChanged = false;
         }
     }
 
@@ -114,16 +114,18 @@ bool CheckpointSwitcherLayer::setup() {
     m_toggleSwitcherButton->ignoreAnchorPointForPosition(true);
     m_buttonMenu->addChildAtPosition(m_toggleSwitcherButton, Anchor::BottomLeft, ccp(10.f, 10.f));
     
-    m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt"); if (!m_toggleSwitcherButtonLabel) {log::error("toggle switcher button label failed to initialize."); hasFailed = true;}
+    auto toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt"); if (!m_toggleSwitcherButtonLabel) {log::error("toggle switcher button label failed to initialize."); hasFailed = true;}
+    m_toggleSwitcherButtonLabel = CCNode::create();
+    m_toggleSwitcherButtonLabel->addChild(toggleSwitcherButtonLabel);
     m_toggleSwitcherButtonLabel->setScale(0.33333f);
-    m_toggleSwitcherButtonLabel->setContentWidth(m_toggleSwitcherButtonLabel->getContentWidth() / 3);
-    m_toggleSwitcherButtonLabel->setContentHeight(m_toggleSwitcherButtonLabel->getContentHeight() / 3);
+    m_toggleSwitcherButtonLabel->setContentSize(m_toggleSwitcherButtonLabel->getContentSize() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply"); if (!m_applyButtonEnabledSprite) {log::error("apply button enabled sprite failed to initialize."); hasFailed = true;}
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply"); if (!m_applyButtonDisabledSprite) {log::error("apply button disabled sprite failed to initialize."); hasFailed = true;}
     m_applyButtonDisabledSprite->setOpacity(155);
+    m_applyButtonDisabledSprite->setColor(ccGRAY);
     m_applyButton = CCMenuItemSpriteExtra::create(m_applyButtonEnabledSprite, m_applyButtonDisabledSprite, this, menu_selector(CheckpointSwitcherLayer::onApply)); if (!m_applyButton) {log::error("apply button failed to initialize."); hasFailed = true;}
     m_applyButton->setEnabled(false);
     m_applyButton->setOpacity(30);
