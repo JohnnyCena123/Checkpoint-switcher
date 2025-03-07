@@ -20,11 +20,11 @@ class $modify(MyPlayLayer, PlayLayer) {
         CheckpointObject* m_selectedCheckpoint = nullptr;
     };
 
-//    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
-//        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
+        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
         
-//        return true;
-//    } 
+        return true;
+    } 
 
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
@@ -101,7 +101,7 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt");
     m_toggleSwitcherButtonLabel->setScale(0.333f);
-    m_toggleSwitcherButtonLabel->setContentSizd(m_toggleSwitcherButtonLabel->getContentSize() / 3);
+    m_toggleSwitcherButtonLabel->setContentSize(m_toggleSwitcherButtonLabel->getContentSize() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(50.f, 10.f));
 
