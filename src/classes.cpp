@@ -100,15 +100,15 @@ bool CheckpointSwitcherLayer::setup() {
     m_buttonMenu->addChildAtPosition(m_toggleSwitcherButton, Anchor::BottomLeft, ccp(10.f, 10.f));
     
     m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt");
-    m_toggleSwitcherButtonLabel->setScale(0.333f);
-    m_toggleSwitcherButtonLabel->setContentSize(m_toggleSwitcherButtonLabel->getContentSize() / 3);
+    m_toggleSwitcherButtonLabel->setScale(0.33333f);
+    m_toggleSwitcherButtonLabel->setContentWidth(m_toggleSwitcherButtonLabel->getContentWidth() / 3);
+    m_toggleSwitcherButtonLabel->setContentHeight(m_toggleSwitcherButtonLabel->getContentHeight() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(50.f, 10.f));
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite->setOpacity(155);
-    m_applyButtonDisabledSprite->setColor(ccGRAY);
     m_applyButton = CCMenuItemSpriteExtra::create(m_applyButtonEnabledSprite, m_applyButtonDisabledSprite, this, menu_selector(CheckpointSwitcherLayer::onApply));
     m_applyButton->setEnabled(false);
     m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, ccp(0, m_applyButton->getContentHeight() / 2.f + 10.f));
@@ -197,14 +197,18 @@ void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_currentPlayLayer->setCheckpoint(m_selectedCheckpoint);
     m_applyButton->setEnabled(false);
+    m_applyButton->setOpacity(155);
+    m_applyButton->setColor(ccGRAY);
 }
 
 void CheckpointSwitcherLayer::selectCheckpoint(CheckpointObject* checkpoint) {
     m_selectedCheckpoint = checkpoint;
 }
 
-void CheckpointSwitcherLayer::toggleApplyButton(bool isEnabled) {
-    m_applyButton->setEnabled(isEnabled);
+void CheckpointSwitcherLayer::enableApplyButton() {
+    m_applyButton->setEnabled(true);
+    m_applyButton->setOpacity(255);
+    m_applyButton->setColor(ccWHITE);
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::create() {
@@ -269,7 +273,7 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
     auto lastSelectedButton = CheckpointSwitcherLayer::get()->m_selectedButton;
 
     CheckpointSwitcherLayer::get()->selectCheckpoint(m_checkpoint);
-    CheckpointSwitcherLayer::get()->toggleApplyButton(true);
+    CheckpointSwitcherLayer::get()->enableApplyButton();
 
     if (lastSelectedButton != nullptr) lastSelectedButton->setOutlineVisible(false);
     this->setOutlineVisible(true);
