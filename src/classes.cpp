@@ -118,7 +118,7 @@ bool CheckpointSwitcherLayer::setup() {
     m_toggleSwitcherButtonLabel = CCNode::create();
     m_toggleSwitcherButtonLabel->addChildAtPosition(toggleSwitcherButtonLabel, Anchor::Center);
     m_toggleSwitcherButtonLabel->setScale(0.33333f);
-    m_toggleSwitcherButtonLabel->setContentSize(toggleSwitcherButtonLabel->getContentWidth() / 3);
+    m_toggleSwitcherButtonLabel->setContentSize(toggleSwitcherButtonLabel->getContentSize() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
 
