@@ -104,7 +104,7 @@ bool CheckpointSwitcherLayer::setup() {
     m_toggleSwitcherButtonLabel->setContentWidth(m_toggleSwitcherButtonLabel->getContentWidth() / 3);
     m_toggleSwitcherButtonLabel->setContentHeight(m_toggleSwitcherButtonLabel->getContentHeight() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
-    m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
+    m_mainLayer->addChild/* AtPosition */(m_toggleSwitcherButtonLabel/* , Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f) */);
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
