@@ -65,6 +65,8 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
         CCSprite* m_checkpointOutline;
         CCSprite* m_checkpointGlowOutline;
 
+        bool m_isScaledUp;
+
     protected:
 
         bool init(int buttonID, CheckpointObject* checkpoint);
@@ -74,8 +76,9 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
     public:
 
         CheckpointObject* m_checkpoint;
-
         int m_buttonID;
+
+        void changeScale(bool toScaleUp);
 
         void setOutlineVisible(bool isVisible);
 
