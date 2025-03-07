@@ -217,6 +217,7 @@ void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_currentPlayLayer->setCheckpoint(m_selectedCheckpoint);
     m_currentPlayLayer->m_fields->m_hasCheckpointChanged = true;
+    m_applyButton->setEnabled(false);
 }
 
 void CheckpointSwitcherLayer::selectCheckpoint(CheckpointObject* checkpoint) {
