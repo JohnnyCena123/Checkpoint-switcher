@@ -41,11 +41,11 @@ class CheckpointSwitcherLayer : public Popup<> {
 
         CheckpointSelectorButton* m_selectedButton;
 
+        CCArray* m_buttonsArray;
+
         void selectCheckpoint(CheckpointObject* checkpoint);
         
         void enableApplyButton();
-
-        CCArray* m_buttonsArray;
 
         static CheckpointSwitcherLayer* create();
         static CheckpointSwitcherLayer* get();
@@ -66,6 +66,7 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
         CCSprite* m_checkpointGlowOutline;
 
     protected:
+
         bool init(int buttonID, CheckpointObject* checkpoint);
 
         void onSelectButton(CCObject* sender);
@@ -74,9 +75,11 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
 
         CheckpointObject* m_checkpoint;
 
+        int m_buttonID;
+
         void setOutlineVisible(bool isVisible);
 
-        int m_buttonID;
+        CCSprite* getSprite();
 
         static CheckpointSelectorButton* create(int ID, CheckpointObject* checkpoint);
 

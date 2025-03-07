@@ -237,29 +237,32 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
     
     
 bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) {
+    bool hasFailed = false;
+
     m_mainNode = CCNode::create();
     m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
-    if (m_checkpointSprite) m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
-    m_mainNode->setContentSize(m_checkpointSprite->getContentSize());
-    m_mainNode->addChild(m_checkpointSprite);
+    if (!m_checkpointSprite) {log::error("checkpoint sprite failed to initialize."); hasFailed = true;} 
+    m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
+    m_mainNode->setContentSize(m_checkpointSprite->getScaledContentSize());
+    m_mainNode->addChildAtPosition(m_checkpointSprite, Anchor::Center);
     
     if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) return false;
 
     m_checkpoint = checkpoint;
 
     m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png");
-    if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); return false;}
+    if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); hasFailed = true;}
     m_checkpointOutline->setVisible(false);
     m_checkpointOutline->setColor(ccc3(255, 243, 69));
     m_checkpointSprite->addChildAtPosition(m_checkpointOutline, Anchor::Center);
 
     m_checkpointGlowOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_glow_001.png");
-    if (!m_checkpointGlowOutline) {log::error("checkpoint glow outline failed to initialize."); return false;}
+    if (!m_checkpointGlowOutline) {log::error("checkpoint glow outline failed to initialize."); hasFailed = true;}
     m_checkpointGlowOutline->setColor(ccc3(255, 253, 137));
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
     m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint #{}", buttonID + 1).c_str(), "bigFont.fnt");
-    if (!m_buttonLabel) {log::error("button label failed to initialize."); return false;}
+    if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
     m_checkpointSprite->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 5.f));
     m_buttonLabel->setScale(0.2);
 
@@ -268,6 +271,7 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
     m_checkpointOutline->setID("checkpoint-outline");
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
 
+    if (hasFailed) return false;
     return true;
     
 }
@@ -284,14 +288,18 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
     if (lastSelectedButton != nullptr) lastSelectedButton->setOutlineVisible(false);
     this->setOutlineVisible(true);
 
-    if (lastSelectedButton != nullptr) lastSelectedButton->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, 0.8f), 2.f));
-    this->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, 1.25f), 2.f));
+    if (lastSelectedButton != nullptr) lastSelectedButton->getSprite()->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, 0.8f), 2.f));
+    m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, 1.25f), 2.f));
 
     CheckpointSwitcherLayer::get()->m_selectedButton = this;
 } 
 
 void CheckpointSelectorButton::setOutlineVisible(bool isVisible) {
     m_checkpointOutline->setVisible(isVisible);
+}
+
+CCSprite* CheckpointSelectorButton::getSprite() {
+    return m_checkpointSprite;
 }
 
 CheckpointSelectorButton* CheckpointSelectorButton::create(int buttonID, CheckpointObject* checkpoint) {
