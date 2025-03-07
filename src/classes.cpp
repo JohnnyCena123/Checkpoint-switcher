@@ -301,7 +301,7 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
     this->setOutlineVisible(true);
 
     if (lastSelectedButton != nullptr) lastSelectedButton->changeScale(false);
-+   this->changeScale(true);
+    this->changeScale(true);
 
     CheckpointSwitcherLayer::get()->m_selectedButton = this;
 } 
