@@ -62,24 +62,24 @@ class $modify(MyPlayLayer, PlayLayer) {
         
 };
 
-// #include <Geode/modify/CheckpointObject.hpp>
-// class $modify(MyCheckpointObject, CheckpointObject) {
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
 
-//     struct Fields {
+    struct Fields {
         
-//     };
+    };
 
-//     bool init() {
-//         if (!CheckpointObject::init()) return false;
+    bool init() {
+        if (!CheckpointObject::init()) return false;
         
-//         if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+        if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
-//         }
+        }
 
-//         return true;
-//     }
+        return true;
+    }
 
-// };
+};
 
 bool CheckpointSwitcherLayer::setup() {
 
@@ -104,13 +104,14 @@ bool CheckpointSwitcherLayer::setup() {
     m_toggleSwitcherButtonLabel->setContentWidth(m_toggleSwitcherButtonLabel->getContentWidth() / 3);
     m_toggleSwitcherButtonLabel->setContentHeight(m_toggleSwitcherButtonLabel->getContentHeight() / 3);
     m_toggleSwitcherButtonLabel->ignoreAnchorPointForPosition(true);
-//    m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
+    m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(20.f + m_toggleSwitcherButton->getContentWidth(), 10.f));
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
     m_applyButtonDisabledSprite->setOpacity(155);
     m_applyButton = CCMenuItemSpriteExtra::create(m_applyButtonEnabledSprite, m_applyButtonDisabledSprite, this, menu_selector(CheckpointSwitcherLayer::onApply));
     m_applyButton->setEnabled(false);
+    m_applyButton->setOpacity(30);
     m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, ccp(0, m_applyButton->getContentHeight() / 2.f + 10.f));
 
     m_checkpointSelectorMenu = CCMenu::create();
