@@ -46,6 +46,14 @@ class $modify(MyPlayLayer, PlayLayer) {
         }
     }
 
+    void resetLevel() {
+        PlayLayer::resetLevel();
+        if (m_fields->m_selectedCheckpoint) { 
+            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+        }
+    }
+
     bool getIsPracticeMode() {
         return m_fields->m_isPracticeMode;
     }
