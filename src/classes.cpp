@@ -293,7 +293,7 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
     m_buttonLabel->setID("checkpoint-label");
     m_checkpointOutline->setID("checkpoint-outline");
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
-    this->setID(fmt::format("checkpoint-button-no-{}", i + 1).c_str());
+    this->setID(fmt::format("checkpoint-button-no-{}", buttonID + 1).c_str());
 
     if (hasFailed) {return false; log::error("failed to initialize checkpoint selector button no. {}.", m_buttonID);}
     log::debug("initialized checkpoint selector button no. {}!", m_buttonID);
