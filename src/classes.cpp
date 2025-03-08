@@ -45,7 +45,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
         if (m_fields->m_selectedCheckpoint) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;=
+            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
         }
     }
 
