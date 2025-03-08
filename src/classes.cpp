@@ -30,7 +30,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
-        log::debug("set checkpoint!");
     }
 
     void resume() {
@@ -39,29 +38,23 @@ class $modify(MyPlayLayer, PlayLayer) {
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
             m_currentCheckpoint = m_fields->m_selectedCheckpoint;
             m_fields->m_hasCheckpointChanged = false;
-            log::debug("successfully loaded from checkpoint on resume!");
         }
-        log::debug("resumed!");
     }
 
     void resetLevel() {
         PlayLayer::resetLevel();
         if (m_fields->m_selectedCheckpoint) { 
             loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
-            log::debug("successfully loaded from checkpoint on reset level!");
+            m_currentCheckpoint = m_fields->m_selectedCheckpoint;=
         }
-        log::debug("reset level!");
     }
 
     bool getIsPracticeMode() {
         return m_fields->m_isPracticeMode;
-        log::debug("got is practice mode!");
     }
 
     CCArray* getCheckpoints() {
         return m_checkpointArray;
-        log::debug("got checkpoints!");
     }
 
     void togglePracticeMode(bool practiceMode) {
@@ -69,30 +62,28 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::togglePracticeMode(practiceMode);
 
         m_fields->m_isPracticeMode = practiceMode;
-        log::debug("toggled practice mode!");
     }
         
 };
 
-#include <Geode/modify/CheckpointObject.hpp>
-class $modify(MyCheckpointObject, CheckpointObject) {
+// #include <Geode/modify/CheckpointObject.hpp>
+// class $modify(MyCheckpointObject, CheckpointObject) {
 
-    struct Fields {
+//     struct Fields {
         
-    };
+//     };
 
-    bool init() {
-        if (!CheckpointObject::init()) return false;
+//     bool init() {
+//         if (!CheckpointObject::init()) return false;
         
-        if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+//         if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
-        }
+//         }
 
-        log::debug("initialized checkpoint object!");
-        return true;
-    }
+//         return true;
+//     }
 
-};
+// };
 
 bool CheckpointSwitcherLayer::setup() {
     bool hasFailed = false;
@@ -200,57 +191,48 @@ bool CheckpointSwitcherLayer::setup() {
     m_closeBtn->setID("close-button");
     m_bgSprite->setID("background-sprite");
 
-    if (hasFailed) {return false; log::error("failed to initialize checkpoint switcher layer.");}
-    log::debug("initialized checkpoint switcher layer!");
+    if (hasFailed) return false;
     return true;
 }
 
 void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
     isSwitcherOn = !isSwitcherOn;
     m_toggleSwitcherButtonCheckmarkSprite->setVisible(isSwitcherOn);
-    log::debug("toggled switcher!");
 }
 
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_currentPlayLayer->setCheckpoint(m_selectedCheckpoint);
     m_currentPlayLayer->m_fields->m_hasCheckpointChanged = true;
     m_applyButton->setEnabled(false);
-    log::debug("applied!");
 }
 
 void CheckpointSwitcherLayer::selectCheckpoint(CheckpointObject* checkpoint) {
     m_selectedCheckpoint = checkpoint;
-    log::debug("selected checkpoint!");
 }
 
 void CheckpointSwitcherLayer::enableApplyButton() {
     m_applyButton->setEnabled(true);
     m_applyButton->setOpacity(255);
     m_applyButton->setColor(ccWHITE);
-    log::debug("enabled apply button!");
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::create() {
     auto ret = new CheckpointSwitcherLayer();
     if (ret->initAnchored(480.f, 240.f)) {
         ret->autorelease();
-        log::debug("created checkpoint switcher layer!");
         return ret;
     }
-    log::error("failed to create checkpoint switcher layer.");
 
     delete ret;
     return nullptr;
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::get() { 
-    log::debug("got checkpoint switcher layer!");
     return s_currentLayer;
 }
 
 CheckpointSwitcherLayer::~CheckpointSwitcherLayer() {
     s_currentLayer = nullptr;
-    log::debug("destructed checkpoint switcher layer!");
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
@@ -294,8 +276,7 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
     this->setID(fmt::format("checkpoint-button-no-{}", buttonID + 1).c_str());
 
-    if (hasFailed) {return false; log::error("failed to initialize checkpoint selector button no. {}.", m_buttonID);}
-    log::debug("initialized checkpoint selector button no. {}!", m_buttonID);
+    if (hasFailed) return false;
     return true;
     
 }
@@ -316,38 +297,30 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
     this->changeScale(true);
 
     CheckpointSwitcherLayer::get()->m_selectedButton = this;
-    log::debug("selected checkpoint selector button no. {}!", m_buttonID);
 } 
 
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
     if (toScaleUp != m_isScaledUp) {
-        log::debug("toScaleUp: {}, m_isScaledUp: {}", toScaleUp, m_isScaledUp);
         m_mainNode->runAction(CCEaseInOut::create(CCScaleTo::create(0.1f, toScaleUp ? 1.25f : 1.f), 2.f));
         m_isScaledUp = toScaleUp;
-        log::debug("changed scale of checkpoint selector button no. {}!", m_buttonID);
         return;
     }
-    log::debug("did not change scale of checkpoint selector button no. {}.", m_buttonID);
 }
 
 void CheckpointSelectorButton::setOutlineVisible(bool isVisible) {
     m_checkpointOutline->setVisible(isVisible);
-    log::debug("set the outline of checkpoint selector button no. {} to {} be visible!", m_buttonID, isVisible);
 }
 
 CCSprite* CheckpointSelectorButton::getSprite() {
     return m_checkpointSprite;
-    log::debug("got the sprite of checkpoint selector button no. {}!", m_buttonID);
 }
 
 CheckpointSelectorButton* CheckpointSelectorButton::create(int buttonID, CheckpointObject* checkpoint) {
     auto ret = new CheckpointSelectorButton();
     if (ret->init(buttonID, checkpoint)) {
         ret->autorelease();
-        log::debug("created checkpoint selector button no. {}!", buttonID);
         return ret;
     }
-    log::debug("failed to create checkpoint selector button no. {}.", buttonID);
 
     delete ret;
     return nullptr;
