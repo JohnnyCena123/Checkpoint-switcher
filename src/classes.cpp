@@ -307,7 +307,7 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
 
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
     if (toScaleUp != m_isScaledUp) {
-        log::debug("toScaleUp: {}, m_isScaledUp: {}", toScaleUp, m_isScaledUp
+        log::debug("toScaleUp: {}, m_isScaledUp: {}", toScaleUp, m_isScaledUp);
         m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, toScaleUp ? 1.25f : 0.8f), 2.f));
         m_isScaledUp = toScaleUp;
     }
