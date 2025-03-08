@@ -44,17 +44,6 @@ class $modify(MyPlayLayer, PlayLayer) {
         log::debug("resumed!");
     }
 
-    void resumeAndRestart(bool p0) {
-        PlayLayer::resumeAndRestart(p0);
-        if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
-            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
-            m_fields->m_hasCheckpointChanged = false;
-            log::debug("successfully loaded from checkpoint on resume and restart!");
-        }
-        log::debug("resumed and restarted!");
-    }
-
     void resetLevel() {
         PlayLayer::resetLevel();
         if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
@@ -185,10 +174,9 @@ bool CheckpointSwitcherLayer::setup() {
 
             auto checkpoint = static_cast<CheckpointObject*>(m_checkpoints->objectAtIndex(i));
 
-            auto checkpointButton = CheckpointSelectorButton::create(i, checkpoint); if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
+            auto checkpointButton = CheckpointSelectorButton::create(i + 1, checkpoint); if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
             m_checkpointSelectorMenu->addChild(checkpointButton);
             m_buttonsArray->addObject(checkpointButton);
-            checkpointButton->setID(fmt::format("checkpoint-button-no-{}", i + 1).c_str());
 
         }
 
@@ -283,6 +271,8 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
 
     m_checkpoint = checkpoint;
 
+    m_buttonID = buttonID;
+
     m_isScaledUp = false;
 
     m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png"); if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); hasFailed = true;}
@@ -294,14 +284,16 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
     m_checkpointGlowOutline->setColor(ccc3(255, 253, 137));
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
-    m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint #{}", buttonID + 1).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
+    m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint #{}", buttonID).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
     m_checkpointSprite->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 5.f));
     m_buttonLabel->setScale(0.2);
 
+    m_mainNode->setID("main-node");
     m_checkpointSprite->setID("checkpoint-sprite");
     m_buttonLabel->setID("checkpoint-label");
     m_checkpointOutline->setID("checkpoint-outline");
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
+    this->setID(fmt::format("checkpoint-button-no-{}", i + 1).c_str());
 
     if (hasFailed) {return false; log::error("failed to initialize checkpoint selector button no. {}.", m_buttonID);}
     log::debug("initialized checkpoint selector button no. {}!", m_buttonID);
@@ -331,9 +323,10 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
     if (toScaleUp != m_isScaledUp) {
         log::debug("toScaleUp: {}, m_isScaledUp: {}", toScaleUp, m_isScaledUp);
-        m_checkpointSprite->runAction(CCEaseInOut::create(CCScaleBy::create(0.1f, toScaleUp ? 1.25f : 0.8f), 2.f));
+        m_mainNode->runAction(CCEaseInOut::create(CCScaleTo::create(0.1f, toScaleUp ? 1.25f : 1.f), 2.f));
         m_isScaledUp = toScaleUp;
         log::debug("changed scale of checkpoint selector button no. {}!", m_buttonID);
+        return;
     }
     log::debug("did not change scale of checkpoint selector button no. {}.", m_buttonID);
 }
@@ -352,8 +345,8 @@ CheckpointSelectorButton* CheckpointSelectorButton::create(int buttonID, Checkpo
     auto ret = new CheckpointSelectorButton();
     if (ret->init(buttonID, checkpoint)) {
         ret->autorelease();
-        return ret;
         log::debug("created checkpoint selector button no. {}!", buttonID);
+        return ret;
     }
     log::debug("failed to create checkpoint selector button no. {}.", buttonID);
 
