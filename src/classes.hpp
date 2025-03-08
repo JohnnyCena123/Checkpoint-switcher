@@ -12,7 +12,7 @@ class CheckpointSwitcherLayer : public Popup<> {
         
         CCSprite* m_toggleSwitcherButtonSprite;
         CCSprite* m_toggleSwitcherButtonCheckmarkSprite;
-        CCLabelBMFont* m_toggleSwitcherButtonLabel;
+        CCNode* m_toggleSwitcherButtonLabel;
         CCMenuItemSpriteExtra* m_toggleSwitcherButton;
 
         CCMenu* m_checkpointSelectorMenu;
@@ -41,11 +41,11 @@ class CheckpointSwitcherLayer : public Popup<> {
 
         CheckpointSelectorButton* m_selectedButton;
 
+        CCArray* m_buttonsArray;
+
         void selectCheckpoint(CheckpointObject* checkpoint);
         
-        void toggleApplyButton(bool isEnabled);
-
-        CCArray* m_buttonsArray;
+        void enableApplyButton();
 
         static CheckpointSwitcherLayer* create();
         static CheckpointSwitcherLayer* get();
@@ -57,13 +57,18 @@ class CheckpointSwitcherLayer : public Popup<> {
 class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
     private:
 
+        CCNode* m_mainNode;
+
         CCSprite* m_checkpointSprite;
         CCLabelBMFont* m_buttonLabel;
 
         CCSprite* m_checkpointOutline;
         CCSprite* m_checkpointGlowOutline;
 
+        bool m_isScaledUp;
+
     protected:
+
         bool init(int buttonID, CheckpointObject* checkpoint);
 
         void onSelectButton(CCObject* sender);
@@ -71,10 +76,13 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
     public:
 
         CheckpointObject* m_checkpoint;
+        int m_buttonID;
+
+        void changeScale(bool toScaleUp);
 
         void setOutlineVisible(bool isVisible);
 
-        int m_buttonID;
+        CCSprite* getSprite();
 
         static CheckpointSelectorButton* create(int ID, CheckpointObject* checkpoint);
 

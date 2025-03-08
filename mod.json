@@ -2,13 +2,11 @@
 	"geode": "4.2.0",
 	"gd": {
 		"win": "2.2074",
-		"android": "2.2074",
-		"mac": "2.2074",
-		"ios": "2.2074"
+		"mac": "2.2074"
 	},
 	"id": "johnny_cena.checkpoint_switcher",
 	"name": "Checkpoint switcher",
-	"version": "v0.0.0",
+	"version": "v1.0.0",
 	"developer": "Johnny Cena",
 	"description": "Like startpos switcher, but for checkpoints!",
 	"resources": {
@@ -32,13 +30,17 @@
 			"name": "Enable switcher UI",
 			"description": "Enables buttons much like the buttons in most startpos switchers.",
 			"type": "bool",
-			"default": false
+			"default": false,
+			"enable-if": "false",
+			"enable-if-description": "This feature is coming soon!"
 		},
 		"EnableKeybinds": {
 			"name": "Enable switcher keybinds",
 			"description": "Enables keybinds for switching between checkpoints.",
 			"type": "bool",
-			"default": false
+			"default": false,
+			"enable-if": "false",
+			"enable-if-description": "This feature is coming soon!"
 		}
 	}
 }
