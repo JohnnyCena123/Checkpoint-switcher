@@ -20,13 +20,18 @@ class $modify(MyPlayLayer, PlayLayer) {
         CheckpointObject* m_selectedCheckpoint = nullptr;
 
         bool m_hasCheckpointChanged = false;
+
+        CCNode* m_checkpointsNode = CCNode::create();
     };
 
-    // bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
-    //     if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
+        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+
+        this->getChildByID("progress-bar")->addChild(m_fields->m_checkpointsNode);
+        m_fields->m_checkpointsNode->setID("checkpoints-node");
         
-    //     return true;
-    // } 
+        return true;
+    } 
 
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
@@ -63,27 +68,29 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         m_fields->m_isPracticeMode = practiceMode;
     }
-        
+
 };
 
-// #include <Geode/modify/CheckpointObject.hpp>
-// class $modify(MyCheckpointObject, CheckpointObject) {
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
 
-//     struct Fields {
+    bool init() {
+        if (!CheckpointObject::init()) return false;
         
-//     };
+        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
-//     bool init() {
-//         if (!CheckpointObject::init()) return false;
-        
-//         if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+        // }
 
-//         }
+        auto checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
+        checkpointSprite->setScale(0.1);
+        checkpointSprite->setVisible(false);
+        auto checkpointsNode = PlayLayer::get()->getChildByID("progress-bar")->getChildByID("checkpoints-node"); 
+        checkpointsNode->addChildAtPosition(checkpointSprite, Anchor::BottomLeft, ccp(checkpointsNode->getContentWidth(), 0 - 2 - checkpointSprite->getContentHeight() / 2));
 
-//         return true;
-//     }
+        return true;
+    }
 
-// };
+};
 
 bool CheckpointSwitcherLayer::setup() {
     bool hasFailed = false;
@@ -131,7 +138,8 @@ bool CheckpointSwitcherLayer::setup() {
     auto pagedCheckpointSelectorMenu = static_cast<PageMenu*>(m_checkpointSelectorMenu);
     pagedCheckpointSelectorMenu->setPaged(3, HORIZONTAL, 600.f, 4);
 
-    m_currentPlayLayer = static_cast<MyPlayLayer*>(CCScene::get()->getChildByID("PlayLayer"));
+    m_currentPlayLayer = static_cast<MyPlayLayer*>(PlayLayer::get());
+    m_currentPlayLayer->m_fields->m_checkpointsNode->setVisible(true);
     m_checkpoints = m_currentPlayLayer->getCheckpoints();
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
@@ -282,8 +290,6 @@ bool CheckpointSelectorButton::init(int buttonID, CheckpointObject* checkpoint) 
 }
 
 void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
-
-    auto currentPlayLayer = static_cast<MyPlayLayer*>(CCScene::get()->getChildByID("PlayLayer"));
 
     auto lastSelectedButton = CheckpointSwitcherLayer::get()->m_selectedButton;
 
