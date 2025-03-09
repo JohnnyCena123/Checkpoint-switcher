@@ -21,14 +21,17 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         bool m_hasCheckpointChanged = false;
 
-        CCNode* m_checkpointsNode = CCNode::create();
     };
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
 
-        this->getChildByID("progress-bar")->addChild(m_fields->m_checkpointsNode);
-        m_fields->m_checkpointsNode->setID("checkpoints-node");
+        auto checkpointsNode = CCNode::create();
+        auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
+        CCScene::get()->addChildAtPosition(checkpointsNode, Anchor::BottomLeft, ccp(progressBar->getPositionX() + progressBar->getContentWidth() / 2, progressBar->getPositionY() - progressBar->getContentHeight() / 2));
+        checkpointsNode->setVisible(false);
+        checkpointsNode->setZOrder(69424269);
+        checkpointsNode->setID("checkpoints-node");
         
         return true;
     } 
@@ -81,11 +84,11 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 
         // }
 
+        auto checkpointsNode = CCScene::get()->getChildByID("checkpoints-node");
+
         auto checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
         checkpointSprite->setScale(0.1);
-        checkpointSprite->setVisible(false);
-        auto checkpointsNode = PlayLayer::get()->getChildByID("progress-bar")->getChildByID("checkpoints-node"); 
-        checkpointsNode->addChildAtPosition(checkpointSprite, Anchor::BottomLeft, ccp(checkpointsNode->getContentWidth(), 0 - 2 - checkpointSprite->getContentHeight() / 2));
+        checkpointsNode->addChildAtPosition(checkpointSprite, Anchor::BottomLeft, ccp(static_cast<CCSprite*>(PlayLayer::get()->getChildByID("progress-bar")->getChildren()->objectAtIndex(0))->getContentWidth(), 0 - 2 - checkpointSprite->getContentHeight() / 2));
 
         return true;
     }
@@ -139,7 +142,7 @@ bool CheckpointSwitcherLayer::setup() {
     pagedCheckpointSelectorMenu->setPaged(3, HORIZONTAL, 600.f, 4);
 
     m_currentPlayLayer = static_cast<MyPlayLayer*>(PlayLayer::get());
-    m_currentPlayLayer->m_fields->m_checkpointsNode->setVisible(true);
+    CCScene::get()->getChildByID("checkpoints-node")->setVisible(true);
     m_checkpoints = m_currentPlayLayer->getCheckpoints();
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
