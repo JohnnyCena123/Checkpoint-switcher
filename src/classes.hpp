@@ -4,6 +4,7 @@
 using namespace geode::prelude;
 
 class MyPlayLayer;
+class MyCheckpointObject;
 
 class CheckpointSelectorButton;
 
@@ -69,13 +70,13 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
 
     protected:
 
-        bool init(int buttonID, CheckpointObject* checkpoint);
+        bool init(int buttonID, MyCheckpointObject* checkpoint);
 
         void onSelectButton(CCObject* sender);
 
     public:
 
-        CheckpointObject* m_checkpoint;
+        MyCheckpointObject* m_checkpoint;
         int m_buttonID;
 
         void changeScale(bool toScaleUp);
@@ -84,7 +85,7 @@ class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
 
         CCSprite* getSprite();
 
-        static CheckpointSelectorButton* create(int ID, CheckpointObject* checkpoint);
+        static CheckpointSelectorButton* create(int ID, MyCheckpointObject* checkpoint);
 
         
 };
