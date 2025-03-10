@@ -172,7 +172,6 @@ bool CheckpointSwitcherLayer::setup() {
             progressBar->getPositionX() + progressBar->getContentWidth() / 2.f, 
             progressBar->getPositionY() - progressBar->getContentHeight() / 2.f
         ));
-        checkpointsNode->setZOrder(69420);
         checkpointsNode->setID("checkpoints-node");
 
         for (int i = 0; i < m_checkpoints->count(); i++) {
