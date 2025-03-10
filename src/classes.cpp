@@ -28,7 +28,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         auto checkpointsNode = CCNode::create();
         auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
-        CCScene::get()->addChildAtPosition(checkpointsNode, Anchor::BottomLeft, ccp(progressBar->getPositionX() + progressBar->getContentWidth() / 2, progressBar->getPositionY() - progressBar->getContentHeight() / 2));
+        CCScene::get()->addChildAtPosition(checkpointsNode, Anchor::BottomLeft, ccp(progressBar->getPositionX() + progressBar->getContentWidth() / 2.f, progressBar->getPositionY() - progressBar->getContentHeight() / 2.f));
         checkpointsNode->setVisible(false);
         checkpointsNode->setZOrder(69424269);
         checkpointsNode->setID("checkpoints-node");
@@ -86,9 +86,17 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 
         auto checkpointsNode = CCScene::get()->getChildByID("checkpoints-node");
 
+        if (checkpointsNode == nullptr) {
+            log::error("failed to get the checkpoints node.");
+            return true;
+        }
+
         auto checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
-        checkpointSprite->setScale(0.1);
-        checkpointsNode->addChildAtPosition(checkpointSprite, Anchor::BottomLeft, ccp(static_cast<CCSprite*>(PlayLayer::get()->getChildByID("progress-bar")->getChildren()->objectAtIndex(0))->getContentWidth(), 0 - 2 - checkpointSprite->getContentHeight() / 2));
+        checkpointSprite->setScale(0.1f);
+        checkpointsNode->addChildAtPosition(checkpointSprite, Anchor::BottomLeft, ccp(
+            PlayLayer::get()->getChildByID("progress-bar")->getContentWidth() * PlayLayer::get()->getCurrentPercent() / 100.f, 
+            - 2.f - checkpointSprite->getContentHeight() / 2
+        ));
 
         return true;
     }
@@ -116,7 +124,7 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt"); if (!m_toggleSwitcherButtonLabel) {log::error("toggle switcher button label failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButtonLabel->setScale(0.33333f);
-    m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(110, 25));
+    m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(110.f, 25.f));
 
     m_applyButtonEnabledSprite = ButtonSprite::create("Apply"); if (!m_applyButtonEnabledSprite) {log::error("apply button enabled sprite failed to initialize."); hasFailed = true;}
     m_applyButtonDisabledSprite = ButtonSprite::create("Apply"); if (!m_applyButtonDisabledSprite) {log::error("apply button disabled sprite failed to initialize."); hasFailed = true;}
