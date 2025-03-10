@@ -168,11 +168,11 @@ bool CheckpointSwitcherLayer::setup() {
         
         auto checkpointsNode = CCNode::create();
         auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
-        CCScene::get()->addChildAtPosition(checkpointsNode, Anchor::BottomLeft, ccp(
+        this->addChildAtPosition(checkpointsNode, Anchor::BottomLeft, ccp(
             progressBar->getPositionX() + progressBar->getContentWidth() / 2.f, 
             progressBar->getPositionY() - progressBar->getContentHeight() / 2.f
         ));
-        checkpointsNode->setZOrder(69424269);
+        checkpointsNode->setZOrder(69420);
         checkpointsNode->setID("checkpoints-node");
 
         for (int i = 0; i < m_checkpoints->count(); i++) {
@@ -248,6 +248,7 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::get() {
 
 CheckpointSwitcherLayer::~CheckpointSwitcherLayer() {
     s_currentLayer = nullptr;
+    CCScene::get()->getChildByID("checkpoints-node")->removeFromParent();
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
@@ -291,7 +292,7 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
     this->setID(fmt::format("checkpoint-button-no-{}", buttonID + 1).c_str());
 
-    auto checkpointsNode = CCScene::get()->getChildByID("checkpoints-node");
+    auto checkpointsNode = CheckpointSwitcherLayer::get()->getChildByID("checkpoints-node");
 
     auto checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
     checkpointSprite->setScale(0.1f);
