@@ -247,7 +247,7 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::get() {
 
 CheckpointSwitcherLayer::~CheckpointSwitcherLayer() {
     s_currentLayer = nullptr;
-    m_checkpointsNode->removeFromParent();
+    m_checkpointIndicatorsNode->removeFromParent();
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
@@ -260,7 +260,7 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_containerMenuItem = CCMenuItem::create();
     m_containerMenu = CCMenu::create();
     m_containerMenu->addChild(this);
-    m_mainMenuItem->addChild(m_containerMenu);
+    m_containerMenuItem->addChild(m_containerMenu);
     m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png"); if (!m_checkpointSprite) {log::error("checkpoint sprite failed to initialize."); hasFailed = true;} 
     m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
     m_mainNode = CCNode::create();
@@ -308,7 +308,7 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointOutline->setID("checkpoint-outline");
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
     m_containerMenuItem->setID(fmt::format("checkpoint-button-no-{}-container-menu-item", buttonID + 1).c_str());
-    m_containerMenu->setID(fmt::format("checkpoint-button-no-{}-container-menu", buttonID + 1).c_str())
+    m_containerMenu->setID(fmt::format("checkpoint-button-no-{}-container-menu", buttonID + 1).c_str());
     this->setID(fmt::format("checkpoint-button-no-{}", buttonID + 1).c_str());
 
     if (hasFailed) return false;
