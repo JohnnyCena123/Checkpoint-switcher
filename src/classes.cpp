@@ -141,9 +141,15 @@ bool CheckpointSwitcherLayer::setup() {
     m_checkpoints = m_currentPlayLayer->getCheckpoints();
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
-    
     m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
     
+    m_checkpointIndicatorsNode = CCNode::create();
+    auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
+    m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::BottomLeft, ccp(
+        progressBar->getPositionX() + progressBar->getContentWidth() / 2.f, 
+        progressBar->getPositionY() - progressBar->getContentHeight() / 2.f
+    ));
+    m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
 
     if (!m_isPracticeMode) {
         auto practiceOffLabel = CCNode::create(); if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
@@ -165,14 +171,6 @@ bool CheckpointSwitcherLayer::setup() {
         m_applyButton->removeFromParent();
 
     } else if (m_checkpoints->count() > 0) {
-        
-        m_checkpointIndicatorsNode = CCNode::create();
-        auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
-        m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::BottomLeft, ccp(
-            progressBar->getPositionX() + progressBar->getContentWidth() / 2.f, 
-            progressBar->getPositionY() - progressBar->getContentHeight() / 2.f
-        ));
-        m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
 
         for (int i = 0; i < m_checkpoints->count(); i++) {
 
