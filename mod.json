@@ -2,7 +2,8 @@
 	"geode": "4.2.0",
 	"gd": {
 		"win": "2.2074",
-		"mac": "2.2074"
+		"mac": "2.2074",
+		"android": "2.2074"
 	},
 	"id": "johnny_cena.checkpoint_switcher",
 	"name": "Checkpoint switcher",
@@ -16,6 +17,10 @@
 	},
 	"dependencies": {
   		"alphalaneous.pages_api": ">=v1.4.8"
+	},
+	"links": {
+		"community": "https://discord.gg/9PnGgjtRyn",
+		"source": "https://github.com/JohnnyCena123/Checkpoint-switcher"
 	},
 	"settings": {
 		"EnablePreviews": {

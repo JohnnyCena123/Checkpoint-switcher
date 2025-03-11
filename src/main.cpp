@@ -22,7 +22,7 @@ class $modify(MyPauseLayer, PauseLayer) {
         menu->addChild(button);
         menu->updateLayout();
 
-        buttonSprite->setID("checkpoint-switcher-button"_spr);
+        button->setID("checkpoint-switcher-button"_spr);
     }
 
     void onCheckpointSwitcher(CCObject* sender) {

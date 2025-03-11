@@ -4,87 +4,93 @@
 using namespace geode::prelude;
 
 class MyPlayLayer;
+class MyCheckpointObject;
 
 class CheckpointSelectorButton;
 
 class CheckpointSwitcherLayer : public Popup<> {
-    private:
+private:
         
-        CCSprite* m_toggleSwitcherButtonSprite;
-        CCSprite* m_toggleSwitcherButtonCheckmarkSprite;
-        CCNode* m_toggleSwitcherButtonLabel;
-        CCMenuItemSpriteExtra* m_toggleSwitcherButton;
+    CCSprite* m_toggleSwitcherButtonSprite;
+    CCSprite* m_toggleSwitcherButtonCheckmarkSprite;
+    CCNode* m_toggleSwitcherButtonLabel;
+    CCMenuItemSpriteExtra* m_toggleSwitcherButton;
 
-        CCMenu* m_checkpointSelectorMenu;
+    CCMenu* m_checkpointSelectorMenu;
 
-        MyPlayLayer* m_currentPlayLayer;
-        CCArray* m_checkpoints;
-        bool m_isPracticeMode;
+    MyPlayLayer* m_currentPlayLayer;
+    CCArray* m_checkpoints;
+    bool m_isPracticeMode;
 
-        CheckpointObject* m_selectedCheckpoint;
+    CheckpointObject* m_selectedCheckpoint;
 
-        ButtonSprite* m_applyButtonEnabledSprite;
-        ButtonSprite* m_applyButtonDisabledSprite;
-        CCMenuItemSpriteExtra* m_applyButton;
+    ButtonSprite* m_applyButtonEnabledSprite;
+    ButtonSprite* m_applyButtonDisabledSprite;
+    CCMenuItemSpriteExtra* m_applyButton;
 
-        static CheckpointSwitcherLayer* s_currentLayer;
+    static CheckpointSwitcherLayer* s_currentLayer;
 
-    protected:
+protected:
 
-        bool setup() override;
+    bool setup() override;
 
-        void onToggleSwitcher(CCObject* sender);
+    void onToggleSwitcher(CCObject* sender);
 
-        void onApply(CCObject* sender);
+    void onApply(CCObject* sender);
 
-    public:
+public:
 
-        CheckpointSelectorButton* m_selectedButton;
+    CCNode* m_checkpointIndicatorsNode;
 
-        CCArray* m_buttonsArray;
+    CheckpointSelectorButton* m_selectedButton;
 
-        void selectCheckpoint(CheckpointObject* checkpoint);
+    CCArray* m_buttonsArray;
+
+    void selectCheckpoint(CheckpointObject* checkpoint);
         
-        void enableApplyButton();
+    void enableApplyButton();
 
-        static CheckpointSwitcherLayer* create();
-        static CheckpointSwitcherLayer* get();
+    static CheckpointSwitcherLayer* create();
+    static CheckpointSwitcherLayer* get();
 
-        ~CheckpointSwitcherLayer();
+    ~CheckpointSwitcherLayer();
 
 };
 
 class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
-    private:
+private:
 
-        CCNode* m_mainNode;
+    CCNode* m_mainNode;
 
-        CCSprite* m_checkpointSprite;
-        CCLabelBMFont* m_buttonLabel;
+    CCSprite* m_checkpointSprite;
+    CCLabelBMFont* m_buttonLabel;
 
-        CCSprite* m_checkpointOutline;
-        CCSprite* m_checkpointGlowOutline;
+    CCSprite* m_checkpointOutline;
+    CCSprite* m_checkpointGlowOutline;
 
-        bool m_isScaledUp;
+    bool m_isScaledUp;
 
-    protected:
+protected:
 
-        bool init(int buttonID, CheckpointObject* checkpoint);
+    bool init(int buttonID, MyCheckpointObject* checkpoint);
 
-        void onSelectButton(CCObject* sender);
+    void onSelectButton(CCObject* sender);
 
-    public:
+public:
 
-        CheckpointObject* m_checkpoint;
-        int m_buttonID;
+    CCMenuItem* m_containerMenuItem;
+    CCMenu* m_containerMenu;
 
-        void changeScale(bool toScaleUp);
+    MyCheckpointObject* m_checkpoint;
+    int m_buttonID;
 
-        void setOutlineVisible(bool isVisible);
+    void changeScale(bool toScaleUp);
 
-        CCSprite* getSprite();
+    void setOutlineVisible(bool isVisible);
 
-        static CheckpointSelectorButton* create(int ID, CheckpointObject* checkpoint);
+    CCSprite* getSprite();
+
+    static CheckpointSelectorButton* create(int ID, MyCheckpointObject* checkpoint);
 
         
 };
