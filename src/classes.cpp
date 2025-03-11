@@ -80,6 +80,8 @@ class $modify(MyCheckpointObject, CheckpointObject) {
         if (!CheckpointObject::init()) return false;
 
         m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+
+        log::debug("the current precentage is {}.", m_fields->m_currentPrecentage);
         
         // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
