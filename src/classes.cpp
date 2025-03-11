@@ -191,6 +191,8 @@ bool CheckpointSwitcherLayer::setup() {
 
             auto checkpoint = static_cast<MyCheckpointObject*>(m_checkpoints->objectAtIndex(i));
 
+            if (!checkpoint) {log::error("failed to get checkpoint no. {}", i + 1); hasFailed = true;}
+
             auto checkpointButton = CheckpointSelectorButton::create(i + 1, checkpoint); if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
             m_checkpointSelectorMenu->addChild(checkpointButton);
             m_buttonsArray->addObject(checkpointButton);
