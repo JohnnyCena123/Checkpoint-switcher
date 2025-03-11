@@ -80,6 +80,8 @@ class $modify(MyCheckpointObject, CheckpointObject) {
         if (!CheckpointObject::init()) return false;
 
         m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+
+        log::debug("the current precentage is {}.", m_fields->m_currentPrecentage);
         
         // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
@@ -190,8 +192,6 @@ bool CheckpointSwitcherLayer::setup() {
         for (int i = 0; i < m_checkpoints->count(); i++) {
 
             auto checkpoint = static_cast<MyCheckpointObject*>(m_checkpoints->objectAtIndex(i));
-
-            if (!checkpoint) {log::error("failed to get checkpoint no. {}", i + 1); hasFailed = true;}
 
             auto checkpointButton = CheckpointSelectorButton::create(i + 1, checkpoint); if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
             m_checkpointSelectorMenu->addChild(checkpointButton);
