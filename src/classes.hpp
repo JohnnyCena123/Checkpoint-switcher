@@ -60,7 +60,7 @@ public:
 class CheckpointSelectorButton : public CCMenuItemSpriteExtra {
 private:
 
-    CCNode m_mainNode;
+    CCNode* m_mainNode;
 
     CCSprite* m_checkpointSprite;
     CCLabelBMFont* m_buttonLabel;
