@@ -145,7 +145,8 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_checkpointIndicatorsNode = CCNode::create();
     auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
-    progressBar->addChild(m_checkpointIndicatorsNode);
+    this->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::BottomLeft, progressBar->getPosition());
+    m_checkpointIndicatorsNode->setContentSize(progressBar->getContentSize());
     m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
 
     if (!m_isPracticeMode) {
@@ -162,19 +163,36 @@ bool CheckpointSwitcherLayer::setup() {
         practiceOffLabel->addChild(practiceOffLabelTop);
         practiceOffLabel->addChild(practiceOffLabelBottom);
 
-        practiceOffLabel->setID("label-practice-off");
+        practiceOffLabel->setID("practice-off-label");
 
 
         m_applyButton->removeFromParent();
 
-    } else if (m_checkpoints->count() > 0) {
+    } else if (m_checkpoints->count() == 0) {
+        auto noCheckpointsLabel = CCNode::create(); if (!practiceOffLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
+        auto noCheckpointsLabelTop = CCLabelBMFont::create("Go place some", "bigFont.fnt"); if (!noCheckpointsLabelTop) {log::error("no checkpoints label top failed to initialize."); hasFailed = true;}
+        auto noCheckpointsLabelBottom = CCLabelBMFont::create("checkpoints to start!", "bigFont.fnt"); if (!noCheckpointsLabelBottom) {log::error("no checkpoints label bottom failed to initialize."); hasFailed = true;}
+
+        noCheckpointsLabelTop->setPositionY(20);
+        noCheckpointsLabelBottom->setPositionY(-20);
+
+        m_mainLayer->addChildAtPosition(noCheckpointsLabel, Anchor::Center);
+        noCheckpointsLabel->addChild(noCheckpointsLabelTop);
+        noCheckpointsLabel->addChild(noCheckpointsLabelBottom);
+
+        noCheckpointsLabel->setID("no-checkpoints-label");
+
+
+        m_applyButton->removeFromParent();
+        
+    } else {
 
         for (int i = 0; i < m_checkpoints->count(); i++) {
 
             auto checkpoint = static_cast<MyCheckpointObject*>(m_checkpoints->objectAtIndex(i));
 
             auto checkpointButton = CheckpointSelectorButton::create(i + 1, checkpoint); if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
-            m_checkpointSelectorMenu->addChild(checkpointButton->m_containerMenuItem);
+            m_checkpointSelectorMenu->addChild(checkpointButton);
             m_buttonsArray->addObject(checkpointButton);
 
         }
@@ -250,19 +268,13 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
 bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint) {
     bool hasFailed = false;
 
-    m_containerMenuItem = CCMenuItem::create();
-    m_containerMenu = CCMenu::create();
-    m_containerMenu->addChild(this);
-    m_containerMenuItem->addChild(m_containerMenu);
     m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png"); if (!m_checkpointSprite) {log::error("checkpoint sprite failed to initialize."); hasFailed = true;} 
     m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
     m_mainNode = CCNode::create();
     m_mainNode->setContentSize(m_checkpointSprite->getScaledContentSize());
     m_mainNode->addChildAtPosition(m_checkpointSprite, Anchor::Center);
     
-    if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) return false;
-
-    m_checkpoint = checkpoint;
+    if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) {log::error("CCMenuItemSpriteExtra failed to initialize."); hasFailed = true;};
 
     m_buttonID = buttonID;
 
@@ -278,29 +290,27 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
     m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
-    m_containerMenuItem->addChildAtPosition(m_buttonLabel, Anchor::Center, ccp(0.f, m_checkpointSprite->getContentHeight() / 2.f + 5.f));
-    m_buttonLabel->setScale(0.15);
+    m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Center, ccp(0.f, 65.f));
+    m_buttonLabel->setScale(0.25);
 
     auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
     auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
-    checkpointIndicatorLine->setScale(0.2f);
+    checkpointIndicatorLine->setScale(0.35f);
     checkpointIndicatorLine->addChildAtPosition(checkpointIndicatorSprite, Anchor::Bottom, ccp(0, 2 - checkpointIndicatorSprite->getContentHeight() / 2));
     CheckpointSwitcherLayer::get()->m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorLine, Anchor::BottomLeft, ccp(
         PlayLayer::get()->getChildByID("progress-bar")->getContentWidth() * m_checkpoint->m_fields->m_currentPrecentage / 100.f, 
         - checkpointIndicatorLine->getContentHeight() / 2
     ));
 
-    checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", buttonID).c_str());
-    checkpointIndicatorSprite->setID(fmt::format("checkpoint-indicator-no-{}", buttonID).c_str());
+    checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", m_buttonID).c_str());
+    checkpointIndicatorSprite->setID(fmt::format("checkpoint-indicator-no-{}", m_buttonID).c_str());
 
     m_mainNode->setID("main-node");
     m_checkpointSprite->setID("checkpoint-sprite");
     m_buttonLabel->setID("checkpoint-label");
     m_checkpointOutline->setID("checkpoint-outline");
     m_checkpointGlowOutline->setID("checkpoint-glow-outline");
-    m_containerMenuItem->setID(fmt::format("checkpoint-button-no-{}-container-menu-item", buttonID + 1).c_str());
-    m_containerMenu->setID(fmt::format("checkpoint-button-no-{}-container-menu", buttonID + 1).c_str());
-    this->setID(fmt::format("checkpoint-button-no-{}", buttonID + 1).c_str());
+    this->setID(fmt::format("checkpoint-button-no-{}", m_buttonID).c_str());
 
     if (hasFailed) return false;
     return true;
