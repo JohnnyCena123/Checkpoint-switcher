@@ -145,10 +145,7 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_checkpointIndicatorsNode = CCNode::create();
     auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
-    m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::BottomLeft, ccp(
-        progressBar->getPositionX() + progressBar->getContentWidth() / 2.f, 
-        progressBar->getPositionY() - progressBar->getContentHeight() / 2.f
-    ));
+    progressBar->addChild(m_checkpointIndicatorsNode);
     m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
 
     if (!m_isPracticeMode) {
@@ -181,9 +178,7 @@ bool CheckpointSwitcherLayer::setup() {
             m_buttonsArray->addObject(checkpointButton);
 
         }
-
         m_checkpointSelectorMenu->updateLayout();
-
     }
 
 
@@ -283,14 +278,12 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
     m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
-    m_containerMenuItem->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 5.f));
+    m_containerMenuItem->addChildAtPosition(m_buttonLabel, Anchor::Center, ccp(0.f, m_checkpointSprite->getContentHeight() / 2.f + 5.f));
     m_buttonLabel->setScale(0.15);
 
-    auto checkpointIndicatorLine = CCSprite::createWithSpriteFrameName("gridLine02_001.png");
+    auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
     auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
     checkpointIndicatorLine->setScale(0.2f);
-    checkpointIndicatorLine->setRotation(90);
-    checkpointIndicatorSprite->setScale(0.2f);
     checkpointIndicatorLine->addChildAtPosition(checkpointIndicatorSprite, Anchor::Bottom, ccp(0, 2 - checkpointIndicatorSprite->getContentHeight() / 2));
     CheckpointSwitcherLayer::get()->m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorLine, Anchor::BottomLeft, ccp(
         PlayLayer::get()->getChildByID("progress-bar")->getContentWidth() * m_checkpoint->m_fields->m_currentPrecentage / 100.f, 
