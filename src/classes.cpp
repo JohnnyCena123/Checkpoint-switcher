@@ -169,7 +169,7 @@ bool CheckpointSwitcherLayer::setup() {
         m_applyButton->removeFromParent();
 
     } else if (m_checkpoints->count() == 0) {
-        auto noCheckpointsLabel = CCNode::create(); if (!practiceOffLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
+        auto noCheckpointsLabel = CCNode::create(); if (!noCheckpointsLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
         auto noCheckpointsLabelTop = CCLabelBMFont::create("Go place some", "bigFont.fnt"); if (!noCheckpointsLabelTop) {log::error("no checkpoints label top failed to initialize."); hasFailed = true;}
         auto noCheckpointsLabelBottom = CCLabelBMFont::create("checkpoints to start!", "bigFont.fnt"); if (!noCheckpointsLabelBottom) {log::error("no checkpoints label bottom failed to initialize."); hasFailed = true;}
 
