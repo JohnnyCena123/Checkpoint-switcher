@@ -288,9 +288,10 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_containerMenuItem->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 5.f));
     m_buttonLabel->setScale(0.15);
 
-    auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
+    auto checkpointIndicatorLine = CCSprite::createWithSpriteFrameName("gridLine02_001.png");
     auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
     checkpointIndicatorLine->setScale(0.2f);
+    checkpointIndicatorLine->setRotation(90);
     checkpointIndicatorSprite->setScale(0.2f);
     checkpointIndicatorLine->addChildAtPosition(checkpointIndicatorSprite, Anchor::Bottom, ccp(0, 2 - checkpointIndicatorSprite->getContentHeight() / 2));
     CheckpointSwitcherLayer::get()->m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorLine, Anchor::BottomLeft, ccp(
