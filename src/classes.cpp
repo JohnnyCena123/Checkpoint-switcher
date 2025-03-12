@@ -190,12 +190,16 @@ bool CheckpointSwitcherLayer::setup() {
 
             auto checkpoint = static_cast<MyCheckpointObject*>(m_checkpoints->objectAtIndex(i));
             
-            auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
             auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
+            auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
+            checkpointIndicatorSprite->setAnchorPoint(ccp(0.5f, 0.f));
             checkpointIndicatorLine->setAnchorPoint(ccp(0.5f, 1.f));
-            checkpointIndicatorLine->setScale(0.5f);
-            checkpointIndicatorLine->addChildAtPosition(checkpointIndicatorSprite, Anchor::Bottom, ccp(0.f, 5.f - checkpointIndicatorSprite->getContentHeight() / 2.f));
-            m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorLine, Anchor::BottomLeft, ccp(PlayLayer::get()->getChildByID("progress-bar")->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f, 2.f));
+            checkpointIndicatorSprite->setScale(0.5f);
+            checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 5.f));
+            m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, ccp(
+                progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f, 
+                -5.f - checkpointIndicatorLine->getContentHeight()
+            ));
 
             checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", i + 1).c_str());
             checkpointIndicatorSprite->setID(fmt::format("checkpoint-indicator-no-{}", i + 1).c_str());
