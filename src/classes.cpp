@@ -15,7 +15,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     struct Fields {
         bool m_isPracticeMode = false;
 
-        CheckpointObject* m_selectedCheckpoint = nullptr;
+        MyCheckpointObject* m_selectedCheckpoint = nullptr;
 
         bool m_hasCheckpointChanged = false;
 
@@ -27,7 +27,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         return true;
     } 
 
-    void setCheckpoint(CheckpointObject* checkpoint) {
+    void setCheckpoint(MyCheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
     }
 
@@ -293,8 +293,8 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
     m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
-    m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Center, ccp(0.f, 65.f));
-    m_buttonLabel->setScale(0.25);
+    m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 5.f));
+    m_buttonLabel->setScale(0.4);
 
     auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
     auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
