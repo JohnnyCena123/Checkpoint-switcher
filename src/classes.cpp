@@ -9,8 +9,6 @@ using namespace geode::prelude;
 
 
 
-bool isSwitcherOn = true;
-
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
 
@@ -26,8 +24,6 @@ class $modify(MyPlayLayer, PlayLayer) {
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
 
-        
-        
         return true;
     } 
 
@@ -106,7 +102,7 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_toggleSwitcherButtonSprite = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png"); if (!m_toggleSwitcherButtonSprite) {log::error("toggle switcher button sprite failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButtonCheckmarkSprite = CCSprite::createWithSpriteFrameName("GJ_completesIcon_001.png"); if (!m_toggleSwitcherButtonCheckmarkSprite) {log::error("toggle switcher button checkmark sprite failed to initialize."); hasFailed = true;}
-    m_toggleSwitcherButtonCheckmarkSprite->setVisible(isSwitcherOn);
+    m_toggleSwitcherButtonCheckmarkSprite->setVisible(Mod::get()->getSavedValue<bool>("is-switcher-on"));
     m_toggleSwitcherButtonSprite->addChildAtPosition(m_toggleSwitcherButtonCheckmarkSprite, Anchor::Center);
     m_toggleSwitcherButton = CCMenuItemSpriteExtra::create(m_toggleSwitcherButtonSprite, this, menu_selector(CheckpointSwitcherLayer::onToggleSwitcher)); if (!m_toggleSwitcherButton) {log::error("toggle switcher button failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButton->ignoreAnchorPointForPosition(true);
@@ -171,6 +167,7 @@ bool CheckpointSwitcherLayer::setup() {
         m_applyButton->removeFromParent();
 
     } else if (m_checkpoints->count() == 0) {
+
         auto noCheckpointsLabel = CCNode::create(); if (!noCheckpointsLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
         auto noCheckpointsLabelTop = CCLabelBMFont::create("Go place some", "bigFont.fnt"); if (!noCheckpointsLabelTop) {log::error("no checkpoints label top failed to initialize."); hasFailed = true;}
         auto noCheckpointsLabelBottom = CCLabelBMFont::create("checkpoints to start!", "bigFont.fnt"); if (!noCheckpointsLabelBottom) {log::error("no checkpoints label bottom failed to initialize."); hasFailed = true;}
@@ -223,10 +220,11 @@ bool CheckpointSwitcherLayer::setup() {
 }
 
 void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
-    isSwitcherOn = !isSwitcherOn;
+    bool isSwitcherOn = Mod::get()->getSavedValue<bool>("is-switcher-on");
+    Mod::get()->setSavedValue("is-switcher-on", !isSwitcherOn);
     m_toggleSwitcherButtonCheckmarkSprite->setVisible(isSwitcherOn);
 }
-
+ 
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_currentPlayLayer->setCheckpoint(m_selectedCheckpoint);
     m_currentPlayLayer->m_fields->m_hasCheckpointChanged = true;
@@ -265,7 +263,9 @@ CheckpointSwitcherLayer::~CheckpointSwitcherLayer() {
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
 
-    
+
+
+
     
 bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint) {
     bool hasFailed = false;
@@ -279,6 +279,7 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) {log::error("CCMenuItemSpriteExtra failed to initialize."); hasFailed = true;};
 
     m_buttonID = buttonID;
+    m_checkpoint = checkpoint;
 
     m_isScaledUp = false;
 
@@ -339,7 +340,6 @@ void CheckpointSelectorButton::changeScale(bool toScaleUp) {
     if (toScaleUp != m_isScaledUp) {
         m_mainNode->runAction(CCEaseInOut::create(CCScaleTo::create(0.1f, toScaleUp ? 1.25f : 1.f), 2.f));
         m_isScaledUp = toScaleUp;
-        return;
     }
 }
 

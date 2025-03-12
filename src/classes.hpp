@@ -28,6 +28,7 @@ private:
     ButtonSprite* m_applyButtonDisabledSprite;
     CCMenuItemSpriteExtra* m_applyButton;
 
+
     static CheckpointSwitcherLayer* s_currentLayer;
 
 protected:
