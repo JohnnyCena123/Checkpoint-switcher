@@ -142,7 +142,7 @@ bool CheckpointSwitcherLayer::setup() {
     
     m_checkpointIndicatorsNode = CCNode::create();
     auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
-    this->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::BottomLeft, progressBar->getPosition());
+    m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
     m_checkpointIndicatorsNode->setContentSize(progressBar->getContentSize());
     m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
 
