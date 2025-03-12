@@ -193,9 +193,9 @@ bool CheckpointSwitcherLayer::setup() {
             auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
             auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
             checkpointIndicatorSprite->setAnchorPoint(ccp(0.5f, 0.f));
-            checkpointIndicatorLine->setAnchorPoint(ccp(0.5f, 1.f));
+            checkpointIndicatorLine->setAnchorPoint(ccp(0.5f, 0.f));
             checkpointIndicatorSprite->setScale(0.5f);
-            checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 5.f));
+            checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 2.f));
             m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, ccp(
                 progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f, 
                 -5.f - checkpointIndicatorLine->getContentHeight()
