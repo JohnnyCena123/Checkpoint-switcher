@@ -47,7 +47,7 @@ public:
 
     CCArray* m_buttonsArray;
 
-    void selectCheckpoint(CheckpointObject* checkpoint);
+    void selectCheckpoint(MyCheckpointObject* checkpoint);
         
     void enableApplyButton();
 
