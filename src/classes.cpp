@@ -231,7 +231,7 @@ void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_applyButton->setEnabled(false);
 }
 
-void CheckpointSwitcherLayer::selectCheckpoint(CheckpointObject* checkpoint) {
+void CheckpointSwitcherLayer::selectCheckpoint(MyCheckpointObject* checkpoint) {
     m_selectedCheckpoint = checkpoint;
 }
 
