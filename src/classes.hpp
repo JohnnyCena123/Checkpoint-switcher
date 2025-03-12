@@ -22,11 +22,12 @@ private:
     CCArray* m_checkpoints;
     bool m_isPracticeMode;
 
-    CheckpointObject* m_selectedCheckpoint;
+    MyCheckpointObject* m_selectedCheckpoint;
 
     ButtonSprite* m_applyButtonEnabledSprite;
     ButtonSprite* m_applyButtonDisabledSprite;
     CCMenuItemSpriteExtra* m_applyButton;
+
 
     static CheckpointSwitcherLayer* s_currentLayer;
 

@@ -4,6 +4,14 @@ using namespace geode::prelude;
 
 #include "classes.hpp"
 
+$execute {
+    if (!Mod::get()->setSavedValue("has-loaded-mod-once", true)) {
+        log::info("Loading the mod for the first time!");
+        Mod::get()->setSavedValue("is-switcher-on", true);
+    }
+
+}
+
 #include <Geode/modify/PauseLayer.hpp>
 class $modify(MyPauseLayer, PauseLayer) {
 
@@ -16,8 +24,9 @@ class $modify(MyPauseLayer, PauseLayer) {
             log::warn("Failed to get right-button-menu.");
             return;
         }
-        auto buttonSprite = CCSprite::create("checkpoint-switcher-button.png"_spr);
-        buttonSprite->setScale(0.5f);
+
+        auto baseButtonSprite = CCSprite::create("checkpoint-switcher-button-base.png"_spr);
+        auto buttonSprite = CircleButtonSprite::create(baseButtonSprite);
         CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(buttonSprite, this, menu_selector(MyPauseLayer::onCheckpointSwitcher));    
         menu->addChild(button);
         menu->updateLayout();
