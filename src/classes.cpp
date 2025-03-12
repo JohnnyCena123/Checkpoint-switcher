@@ -8,6 +8,29 @@ using namespace geode::prelude;
 
 
 
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
+
+    struct Fields {
+        float m_currentPrecentage;
+    };
+
+    bool init() {
+        if (!CheckpointObject::init()) return false;
+
+        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+
+        log::debug("the current precentage is {}.", m_fields->m_currentPrecentage);
+        
+        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+
+        // }
+
+
+        return true;
+    }
+
+};
 
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
@@ -61,30 +84,6 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::togglePracticeMode(practiceMode);
 
         m_fields->m_isPracticeMode = practiceMode;
-    }
-
-};
-
-#include <Geode/modify/CheckpointObject.hpp>
-class $modify(MyCheckpointObject, CheckpointObject) {
-
-    struct Fields {
-        float m_currentPrecentage;
-    };
-
-    bool init() {
-        if (!CheckpointObject::init()) return false;
-
-        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
-
-        log::debug("the current precentage is {}.", m_fields->m_currentPrecentage);
-        
-        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
-
-        // }
-
-
-        return true;
     }
 
 };
