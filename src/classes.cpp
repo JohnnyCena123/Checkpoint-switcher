@@ -59,7 +59,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
-            m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+            if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
 
             m_currentCheckpoint = selectedCheckpoint;
             m_fields->m_hasCheckpointChanged = false;
@@ -73,7 +73,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (selectedCheckpoint) { 
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
-            m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+            if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
 
             m_currentCheckpoint = selectedCheckpoint;
         }
@@ -227,8 +227,8 @@ bool CheckpointSwitcherLayer::setup() {
             checkpointIndicatorSprite->setScale(0.5f);
             checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 2.f));
             m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, ccp(
-                progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f, 
-                -6.f - checkpointIndicatorLine->getContentHeight()
+                progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f + 2.f,
+                - checkpointIndicatorLine->getContentHeight() - 6.f 
             ));
 
             checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", i + 1).c_str());
