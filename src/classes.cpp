@@ -147,6 +147,8 @@ bool CheckpointSwitcherLayer::setup() {
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
     m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
+
+    m_checkpointIndicatorsNode = CCNode::create();
     
     if (!m_isPracticeMode) {
         auto practiceOffLabel = CCNode::create(); if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
@@ -167,6 +169,10 @@ bool CheckpointSwitcherLayer::setup() {
 
         m_applyButton->removeFromParent();
 
+
+        m_mainLayer->addChild(m_checkpointIndicatorsNode);
+
+
     } else if (m_checkpoints->count() == 0) {
 
         auto noCheckpointsLabel = CCNode::create(); if (!noCheckpointsLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
@@ -184,6 +190,10 @@ bool CheckpointSwitcherLayer::setup() {
 
 
         m_applyButton->removeFromParent();
+        
+
+        m_mainLayer->addChild(m_checkpointIndicatorsNode);
+
         
     } else {
 
