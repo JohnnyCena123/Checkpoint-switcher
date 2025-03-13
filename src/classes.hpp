@@ -41,6 +41,8 @@ protected:
 
 public:
 
+    CCSprite* m_progressBarClone;
+    CCSprite* m_progressBarCloneFilling;
     CCNode* m_checkpointIndicatorsNode;
 
     CheckpointSelectorButton* m_selectedButton;
@@ -51,8 +53,10 @@ public:
         
     void enableApplyButton();
 
+
     static CheckpointSwitcherLayer* create();
     static CheckpointSwitcherLayer* get();
+
 
     ~CheckpointSwitcherLayer();
 

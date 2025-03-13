@@ -140,11 +140,23 @@ bool CheckpointSwitcherLayer::setup() {
 
     m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
     
+    auto progressBar = PlayLayer::get()->m_progressBar;
+    auto progressBarFilling = PlayLayer::get()->m_progressFill;
+    progressBarFilling->setID("progress-bar-filling"); // this should be in the node ids mod but whatever
+    m_progressBarClone = CCSprite::create("slidergroove2.png");
+    m_progressBarCloneFilling = CCSprite::create("sliderBar2.png");
+    m_progressBarCloneFilling->setColor(ccc3(125, 255, 0));
+    m_progressBarCloneFilling->setContentSize(progressBarFilling->getContentSize());
+    m_progressBarCloneFilling->setAnchorPoint(ccp(0.f, 0.5f));
+    m_progressBarClone->addChildAtPosition(m_progressBarCloneFilling, Anchor::Left);
+    m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
+    m_progressBarClone->setID("progress-bar-clone");
+    m_progressBarCloneFilling->setID("progress-bar-clone-filling");
+
     m_checkpointIndicatorsNode = CCNode::create();
     m_checkpointIndicatorsNode->setAnchorPoint(ccp(0.5f, 0.5f));
-    auto progressBar = PlayLayer::get()->getChildByID("progress-bar");
     m_checkpointIndicatorsNode->setContentSize({progressBar->getContentWidth(), 8.f});
-    m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
+    m_progressBarClone->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center);
     m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
 
     if (!m_isPracticeMode) {
@@ -193,12 +205,12 @@ bool CheckpointSwitcherLayer::setup() {
             auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
             auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
             checkpointIndicatorSprite->setAnchorPoint(ccp(0.5f, 0.f));
-            checkpointIndicatorLine->setAnchorPoint(ccp(0.5f, 1.f));
+            checkpointIndicatorLine->setAnchorPoint(ccp(0.5f, 0.f));
             checkpointIndicatorSprite->setScale(0.5f);
-            checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 5.f));
+            checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 2.f));
             m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, ccp(
                 progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f, 
-                -5.f - checkpointIndicatorLine->getContentHeight()
+                -6.f - checkpointIndicatorLine->getContentHeight()
             ));
 
             checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", i + 1).c_str());
