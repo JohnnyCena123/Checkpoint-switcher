@@ -54,18 +54,28 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void resume() {
         PlayLayer::resume();
-        if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
-            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+
+        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        if (selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
+            loadFromCheckpoint(selectedCheckpoint);
+            m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
+            if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+
+            m_currentCheckpoint = selectedCheckpoint;
             m_fields->m_hasCheckpointChanged = false;
         }
     }
 
     void resetLevel() {
         PlayLayer::resetLevel();
-        if (m_fields->m_selectedCheckpoint) { 
-            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+
+        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        if (selectedCheckpoint) { 
+            loadFromCheckpoint(selectedCheckpoint);
+            m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
+            if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+
+            m_currentCheckpoint = selectedCheckpoint;
         }
     }
 
@@ -137,6 +147,8 @@ bool CheckpointSwitcherLayer::setup() {
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
     m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
+
+    m_checkpointIndicatorsNode = CCNode::create();
     
     if (!m_isPracticeMode) {
         auto practiceOffLabel = CCNode::create(); if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
@@ -157,6 +169,10 @@ bool CheckpointSwitcherLayer::setup() {
 
         m_applyButton->removeFromParent();
 
+
+        m_mainLayer->addChild(m_checkpointIndicatorsNode);
+
+
     } else if (m_checkpoints->count() == 0) {
 
         auto noCheckpointsLabel = CCNode::create(); if (!noCheckpointsLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
@@ -174,6 +190,10 @@ bool CheckpointSwitcherLayer::setup() {
 
 
         m_applyButton->removeFromParent();
+        
+
+        m_mainLayer->addChild(m_checkpointIndicatorsNode);
+
         
     } else {
 
@@ -217,8 +237,8 @@ bool CheckpointSwitcherLayer::setup() {
             checkpointIndicatorSprite->setScale(0.5f);
             checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 2.f));
             m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, ccp(
-                progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f, 
-                -6.f - checkpointIndicatorLine->getContentHeight()
+                progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f + 2.f,
+                - checkpointIndicatorLine->getContentHeight() - 6.f 
             ));
 
             checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", i + 1).c_str());
