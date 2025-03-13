@@ -54,18 +54,28 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void resume() {
         PlayLayer::resume();
-        if (m_fields->m_selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
-            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+
+        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        if (selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
+            loadFromCheckpoint(selectedCheckpoint);
+            m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
+            m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+
+            m_currentCheckpoint = selectedCheckpoint;
             m_fields->m_hasCheckpointChanged = false;
         }
     }
 
     void resetLevel() {
         PlayLayer::resetLevel();
-        if (m_fields->m_selectedCheckpoint) { 
-            loadFromCheckpoint(m_fields->m_selectedCheckpoint);
-            m_currentCheckpoint = m_fields->m_selectedCheckpoint;
+
+        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        if (selectedCheckpoint) { 
+            loadFromCheckpoint(selectedCheckpoint);
+            m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
+            m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+
+            m_currentCheckpoint = selectedCheckpoint;
         }
     }
 
