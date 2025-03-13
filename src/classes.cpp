@@ -138,6 +138,7 @@ bool CheckpointSwitcherLayer::setup() {
 
     m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
     
+
     auto progressBar = PlayLayer::get()->m_progressBar;
     auto progressBarFilling = PlayLayer::get()->m_progressFill;
 
@@ -145,13 +146,20 @@ bool CheckpointSwitcherLayer::setup() {
     m_progressBarCloneFilling = CCSprite::create("sliderBar2.png");
     m_progressBarCloneFilling->setColor(ccc3(125, 255, 0));
     m_progressBarCloneFilling->setContentSize(progressBarFilling->getContentSize());
-    m_progressBarCloneFilling->setAnchorPoint(ccp(0.f, 0.5f));
-    m_progressBarClone->addChildAtPosition(m_progressBarCloneFilling, Anchor::Left);
+    m_progressBarCloneFilling->setAnchorPoint(ccp(0.f, 0.f));
+    m_progressBarCloneFilling->setZOrder(-1);
+    m_progressBarCloneFilling->setTextureRect({
+        0, 0,
+        (progressBar->getTextureRect().getMaxX() - 5) * PlayLayer::get()->getCurrentPercent() / 100.f,
+        progressBar->getTextureRect().getMaxY() / 2
+    });
+    ccTexParams texParams = {GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT};
+    m_progressBarCloneFilling->getTexture()->setTexParameters(&texParams);
+    m_progressBarClone->addChildAtPosition(m_progressBarCloneFilling, Anchor::BottomLeft, ccp(2.f, 4.f));
     m_mainLayer->addChildAtPosition(m_progressBarClone, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
 
     m_progressBarClone->setID("progress-bar-clone");
     m_progressBarCloneFilling->setID("progress-bar-clone-filling");
-
 
     m_checkpointIndicatorsNode = CCNode::create();
     m_checkpointIndicatorsNode->setAnchorPoint(ccp(0.5f, 0.5f));
