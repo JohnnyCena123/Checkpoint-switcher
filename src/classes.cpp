@@ -34,11 +34,11 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 class $modify(MyPlayLayer, PlayLayer) {
 
     struct Fields {
-        bool m_isPracticeMode;
+        bool m_isPracticeMode = false;
 
-        CheckpointObject* m_selectedCheckpoint;
+        bool m_hasCheckpointChanged = false;
 
-        bool m_hasCheckpointChanged;
+        CheckpointObject* m_selectedCheckpoint = nullptr;
 
     };
 
@@ -194,7 +194,7 @@ bool CheckpointSwitcherLayer::setup() {
 
         m_mainLayer->addChild(m_checkpointIndicatorsNode);
 
-        
+
     } else {
 
         auto progressBar = PlayLayer::get()->m_progressBar;
