@@ -20,8 +20,6 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 
         m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
 
-        log::debug("the current precentage is {}.", m_fields->m_currentPrecentage);
-        
         // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
         // }
@@ -36,11 +34,11 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 class $modify(MyPlayLayer, PlayLayer) {
 
     struct Fields {
-        bool m_isPracticeMode = false;
+        bool m_isPracticeMode;
 
-        MyCheckpointObject* m_selectedCheckpoint = nullptr;
+        CheckpointObject* m_selectedCheckpoint;
 
-        bool m_hasCheckpointChanged = false;
+        bool m_hasCheckpointChanged;
 
     };
 
@@ -51,7 +49,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     } 
 
     void setCheckpoint(MyCheckpointObject* checkpoint) {
-        m_fields->m_selectedCheckpoint = checkpoint;
+        m_fields->m_selectedCheckpoint = static_cast<CheckpointObject*>(checkpoint);
     }
 
     void resume() {
@@ -140,25 +138,6 @@ bool CheckpointSwitcherLayer::setup() {
 
     m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
     
-    auto progressBar = PlayLayer::get()->m_progressBar;
-    auto progressBarFilling = PlayLayer::get()->m_progressFill;
-    progressBarFilling->setID("progress-bar-filling"); // this should be in the node ids mod but whatever
-    m_progressBarClone = CCSprite::create("slidergroove2.png");
-    m_progressBarCloneFilling = CCSprite::create("sliderBar2.png");
-    m_progressBarCloneFilling->setColor(ccc3(125, 255, 0));
-    m_progressBarCloneFilling->setContentSize(progressBarFilling->getContentSize());
-    m_progressBarCloneFilling->setAnchorPoint(ccp(0.f, 0.5f));
-    m_progressBarClone->addChildAtPosition(m_progressBarCloneFilling, Anchor::Left);
-    m_mainLayer->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
-    m_progressBarClone->setID("progress-bar-clone");
-    m_progressBarCloneFilling->setID("progress-bar-clone-filling");
-
-    m_checkpointIndicatorsNode = CCNode::create();
-    m_checkpointIndicatorsNode->setAnchorPoint(ccp(0.5f, 0.5f));
-    m_checkpointIndicatorsNode->setContentSize({progressBar->getContentWidth(), 8.f});
-    m_progressBarClone->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center);
-    m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
-
     if (!m_isPracticeMode) {
         auto practiceOffLabel = CCNode::create(); if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
         auto practiceOffLabelTop = CCLabelBMFont::create("Enable practice mode", "bigFont.fnt"); if (!practiceOffLabelTop) {log::error("practice off label top failed to initialize."); hasFailed = true;}
@@ -198,6 +177,35 @@ bool CheckpointSwitcherLayer::setup() {
         
     } else {
 
+        auto progressBar = PlayLayer::get()->m_progressBar;
+        auto progressBarFilling = PlayLayer::get()->m_progressFill;
+    
+        m_progressBarClone = CCSprite::create("slidergroove2.png");
+        m_progressBarCloneFilling = CCSprite::create("sliderBar2.png");
+        m_progressBarCloneFilling->setColor(ccc3(125, 255, 0));
+        m_progressBarCloneFilling->setContentSize(progressBarFilling->getContentSize());
+        m_progressBarCloneFilling->setAnchorPoint(ccp(0.f, 0.f));
+        m_progressBarCloneFilling->setZOrder(-1);
+        m_progressBarCloneFilling->setTextureRect({
+            0, 0,
+            (progressBar->getTextureRect().getMaxX() - 5) * PlayLayer::get()->getCurrentPercent() / 100.f,
+            progressBar->getTextureRect().getMaxY() / 2
+        });
+        ccTexParams texParams = {GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT};
+        m_progressBarCloneFilling->getTexture()->setTexParameters(&texParams);
+        m_progressBarClone->addChildAtPosition(m_progressBarCloneFilling, Anchor::BottomLeft, ccp(2.f, 4.f));
+        m_mainLayer->addChildAtPosition(m_progressBarClone, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
+    
+        m_progressBarClone->setID("progress-bar-clone");
+        m_progressBarCloneFilling->setID("progress-bar-clone-filling");
+    
+        m_checkpointIndicatorsNode = CCNode::create();
+        m_checkpointIndicatorsNode->setAnchorPoint(ccp(0.5f, 0.5f));
+        m_checkpointIndicatorsNode->setContentSize({progressBar->getContentWidth(), 8.f});
+        m_progressBarClone->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center);
+    
+        m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
+        
         for (int i = 0; i < m_checkpoints->count(); i++) {
 
             auto checkpoint = static_cast<MyCheckpointObject*>(m_checkpoints->objectAtIndex(i));

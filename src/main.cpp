@@ -26,7 +26,8 @@ class $modify(MyPauseLayer, PauseLayer) {
         }
 
         auto baseButtonSprite = CCSprite::create("checkpoint-switcher-button-base.png"_spr);
-        auto buttonSprite = CircleButtonSprite::create(baseButtonSprite, CircleBaseColor::Green, CircleBaseSize::Tiny);
+        auto buttonSprite = CircleButtonSprite::create(baseButtonSprite, CircleBaseColor::Green, CircleBaseSize::MediumAlt);
+        buttonSprite->setScale(0.5f);
         CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(buttonSprite, this, menu_selector(MyPauseLayer::onCheckpointSwitcher));    
         menu->addChild(button);
         menu->updateLayout();
