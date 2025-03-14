@@ -28,6 +28,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
+        storeCheckpoint(checkpoint);
     }
 
     void resume() {
@@ -39,7 +40,6 @@ class $modify(MyPlayLayer, PlayLayer) {
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
             if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
 
-            m_currentCheckpoint = selectedCheckpoint;
             m_fields->m_hasCheckpointChanged = false;
         }
     }
@@ -52,8 +52,6 @@ class $modify(MyPlayLayer, PlayLayer) {
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
             if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
-
-            m_currentCheckpoint = selectedCheckpoint;
         }
     }
 
@@ -65,9 +63,30 @@ class $modify(MyPlayLayer, PlayLayer) {
         return m_checkpointArray;
     }
 
+    void removeCheckpoint(bool p0) {
+        auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
+        if (m_currentCheckpoint == m_fields->m_selectedCheckpoint) {
+            if (!m_currentCheckpoint->getUserObject("first-checkpoint"_spr)) {
+                auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
+                m_fields->m_selectedCheckpoint = newCheckpoint;
+                storeCheckpoint(newCheckpoint);
+            }
+
+            PlayLayer::removeCheckpoint(false);
+            
+        } 
+    }
+
     void togglePracticeMode(bool practiceMode) {
         
         PlayLayer::togglePracticeMode(practiceMode);
+
+        if (practiceMode) {
+            if (m_currentCheckpoint) m_currentCheckpoint->release();
+            auto firstCheckpoint = createCheckpoint();
+            firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));;
+            storeCheckpoint(firstCheckpoint);
+        }
 
         m_fields->m_isPracticeMode = practiceMode;
     }
@@ -172,28 +191,6 @@ bool CheckpointSwitcherLayer::setup() {
 
         m_applyButton->removeFromParent();
 
-
-        m_mainLayer->addChild(m_checkpointIndicatorsNode);
-
-
-    } else if (m_checkpoints->count() == 0) {
-
-        auto noCheckpointsLabel = CCNode::create(); if (!noCheckpointsLabel) {log::error("no checkpoints label (node) failed to initialize."); hasFailed = true;}
-        auto noCheckpointsLabelTop = CCLabelBMFont::create("Go place some", "bigFont.fnt"); if (!noCheckpointsLabelTop) {log::error("no checkpoints label top failed to initialize."); hasFailed = true;}
-        auto noCheckpointsLabelBottom = CCLabelBMFont::create("checkpoints to start!", "bigFont.fnt"); if (!noCheckpointsLabelBottom) {log::error("no checkpoints label bottom failed to initialize."); hasFailed = true;}
-
-        noCheckpointsLabelTop->setPositionY(20);
-        noCheckpointsLabelBottom->setPositionY(-20);
-
-        m_mainLayer->addChildAtPosition(noCheckpointsLabel, Anchor::Center);
-        noCheckpointsLabel->addChild(noCheckpointsLabelTop);
-        noCheckpointsLabel->addChild(noCheckpointsLabelBottom);
-
-        noCheckpointsLabel->setID("no-checkpoints-label");
-
-
-        m_applyButton->removeFromParent();
-        
 
         m_mainLayer->addChild(m_checkpointIndicatorsNode);
 
@@ -351,6 +348,7 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
     m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
+    if (m_checkpoint->getUserObject("first-checkpoint"_spr)) m_buttonLabel->setString("The start!");
     m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 10.f));
     m_buttonLabel->setScale(0.4);
 
