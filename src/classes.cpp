@@ -8,28 +8,6 @@ using namespace geode::prelude;
 
 
 
-#include <Geode/modify/CheckpointObject.hpp>
-class $modify(MyCheckpointObject, CheckpointObject) {
-
-    struct Fields {
-        float m_currentPrecentage;
-    };
-
-    bool init() {
-        if (!CheckpointObject::init()) return false;
-
-        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
-
-        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
-
-        // }
-
-
-        return true;
-    }
-
-};
-
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
 
@@ -48,8 +26,8 @@ class $modify(MyPlayLayer, PlayLayer) {
         return true;
     } 
 
-    void setCheckpoint(MyCheckpointObject* checkpoint) {
-        m_fields->m_selectedCheckpoint = static_cast<CheckpointObject*>(checkpoint);
+    void setCheckpoint(CheckpointObject* checkpoint) {
+        m_fields->m_selectedCheckpoint = (checkpoint);
     }
 
     void resume() {
@@ -94,6 +72,31 @@ class $modify(MyPlayLayer, PlayLayer) {
         m_fields->m_isPracticeMode = practiceMode;
     }
 
+};
+
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
+
+    struct Fields {
+        float m_currentPrecentage;
+    };
+
+    bool init() {
+        if (!CheckpointObject::init()) return false;
+
+        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+
+        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+
+        // }
+
+
+        return true;
+    }
+
+    void destructor() {
+        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
+    }
 };
 
 bool CheckpointSwitcherLayer::setup() {
@@ -287,7 +290,7 @@ void CheckpointSwitcherLayer::onApply(CCObject* sender) {
 }
 
 void CheckpointSwitcherLayer::selectCheckpoint(MyCheckpointObject* checkpoint) {
-    m_selectedCheckpoint = checkpoint;
+    m_selectedCheckpoint = static_cast<CheckpointObject*>(checkpoint);
 }
 
 void CheckpointSwitcherLayer::enableApplyButton() {
