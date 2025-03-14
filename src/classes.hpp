@@ -25,7 +25,7 @@ private:
     CCArray* m_checkpoints;
     bool m_isPracticeMode;
 
-    MyCheckpointObject* m_selectedCheckpoint;
+    CheckpointObject* m_selectedCheckpoint;
 
     ButtonSprite* m_applyButtonEnabledSprite;
     ButtonSprite* m_applyButtonDisabledSprite;

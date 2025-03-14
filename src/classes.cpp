@@ -27,7 +27,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     } 
 
     void setCheckpoint(CheckpointObject* checkpoint) {
-        m_fields->m_selectedCheckpoint = (checkpoint);
+        m_fields->m_selectedCheckpoint = checkpoint;
     }
 
     void resume() {

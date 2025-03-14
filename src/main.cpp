@@ -1,5 +1,6 @@
 #include <Geode/Geode.hpp>
 
+#include "classes.hpp"
 
 using namespace geode::prelude;
 
