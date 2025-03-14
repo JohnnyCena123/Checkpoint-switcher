@@ -352,3 +352,4 @@ CheckpointSelectorButton* CheckpointSelectorButton::create(int buttonID, Checkpo
     delete ret;
     return nullptr;
 }
+
