@@ -73,7 +73,7 @@ class $modify(MyPlayLayer, PlayLayer) {
             }
 
             PlayLayer::removeCheckpoint(false);
-            
+
         } 
     }
 
