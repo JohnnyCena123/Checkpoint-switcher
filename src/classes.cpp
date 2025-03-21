@@ -65,6 +65,10 @@ class $modify(MyPlayLayer, PlayLayer) {
         return m_checkpointArray;
     }
 
+    void loadFromCheckpoint(CheckpointObject* checkpoint) {
+        if (checkpoint) PlayLayer::loadFromCheckpoint(checkpoint);
+    }
+
     void removeCheckpoint(bool p0) {
         if (p0) return;
         PlayLayer::removeCheckpoint(false);
