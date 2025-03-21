@@ -12,12 +12,13 @@ using namespace geode::prelude;
 class $modify(MyPlayLayer, PlayLayer) {
 
     struct Fields {
-        bool m_isPracticeMode = false;
+        bool m_isPracticeMode;
 
-        bool m_hasCheckpointChanged = false;
+        bool m_hasCheckpointChanged;
 
-        CheckpointObject* m_selectedCheckpoint = nullptr;
+        CheckpointObject* m_selectedCheckpoint;
 
+        CheckpointObject* m_firstCheckpoint;
     };
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
@@ -63,23 +64,16 @@ class $modify(MyPlayLayer, PlayLayer) {
         return m_checkpointArray;
     }
 
-    CheckpointObject* createCheckpoint() {
-        auto ret = PlayLayer::createCheckpoint();
-        ret->setUserObject("first-checkpoint"_spr, CCBool::create(false));
-        return ret;
-    }
-
     void removeCheckpoint(bool p0) {
+        if (p0) return;
+        PlayLayer::removeCheckpoint(false);
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
-        if (m_currentCheckpoint == m_fields->m_selectedCheckpoint) {
-            if (!m_currentCheckpoint->getUserObject("first-checkpoint"_spr)) {
+        if (m_currentCheckpoint) {
+            if (m_currentCheckpoint != m_fields->m_firstCheckpoint) {
                 auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
                 m_fields->m_selectedCheckpoint = newCheckpoint;
                 storeCheckpoint(newCheckpoint);
             }
-
-            PlayLayer::removeCheckpoint(false);
-
         } 
     }
 
@@ -88,15 +82,25 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::togglePracticeMode(practiceMode);
 
         if (practiceMode) {
-            if (m_currentCheckpoint) m_currentCheckpoint->release();
-            auto firstCheckpoint = createCheckpoint();
-            firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));
-            storeCheckpoint(firstCheckpoint);
+            if (m_fields->m_firstCheckpoint) m_fields->m_firstCheckpoint->release();
+            m_fields->m_firstCheckpoint = createCheckpoint();
+            m_fields->m_firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));
+            m_fields->m_firstCheckpoint->retain();
+            storeCheckpoint(m_fields->m_firstCheckpoint);
         }
 
         m_fields->m_isPracticeMode = practiceMode;
     }
 
+};
+
+#include <Geode/modify/PauseLayer.hpp>
+class $modify(MyPauseLayer, PauseLayer) {
+    void onQuit(CCObject* sender) {
+        PauseLayer::onQuit(sender);
+
+        static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_firstCheckpoint->release();
+    }
 };
 
 #include <Geode/modify/CheckpointObject.hpp>
@@ -117,6 +121,10 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 
 
         return true;
+    }
+
+    void destructor() {
+        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
     }
 };
 
