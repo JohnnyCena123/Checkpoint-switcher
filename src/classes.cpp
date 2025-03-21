@@ -66,6 +66,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     CheckpointObject* createCheckpoint() {
         auto ret = PlayLayer::createCheckpoint();
         ret->setUserObject("first-checkpoint"_spr, CCBool::create(false));
+        return ret;
     }
 
     void removeCheckpoint(bool p0) {
