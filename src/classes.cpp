@@ -118,10 +118,6 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 
         return true;
     }
-
-    void destructor() {
-        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
-    }
 };
 
 bool CheckpointSwitcherLayer::setup() {
