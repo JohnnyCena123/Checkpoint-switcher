@@ -30,13 +30,14 @@ class $modify(MyPlayLayer, PlayLayer) {
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_fields->m_selectedCheckpoint = checkpoint;
         storeCheckpoint(checkpoint);
+        m_fields->m_hasCheckpointChanged = true;
     }
 
     void resume() {
         PlayLayer::resume();
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-        if (selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
+        if (m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
             if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
@@ -292,7 +293,6 @@ void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
  
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
     m_currentPlayLayer->setCheckpoint(m_selectedCheckpoint);
-    m_currentPlayLayer->m_fields->m_hasCheckpointChanged = true;
     m_applyButton->setEnabled(false);
 }
 
