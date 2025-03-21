@@ -7,7 +7,6 @@
 using namespace geode::prelude;
 
 
-
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
 
@@ -23,6 +22,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+
+        if (m_fields->m_firstCheckpoint) m_fields->m_firstCheckpoint->release();
+        m_fields->m_firstCheckpoint = createCheckpoint();
+        m_fields->m_firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));
+        m_fields->m_firstCheckpoint->retain();
+        m_fields->m_selectedCheckpoint = m_fields->m_firstCheckpoint;
+        storeCheckpoint(m_fields->m_firstCheckpoint);
 
         return true;
     } 
@@ -71,28 +77,21 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void removeCheckpoint(bool p0) {
         if (p0) return;
-        PlayLayer::removeCheckpoint(false);
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
-        if (m_currentCheckpoint) {
-            if (m_currentCheckpoint != m_fields->m_firstCheckpoint) {
+        if (m_currentCheckpoint != m_fields->m_firstCheckpoint) {
+            if (m_currentCheckpoint) {
                 auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
                 m_fields->m_selectedCheckpoint = newCheckpoint;
                 storeCheckpoint(newCheckpoint);
             }
+            PlayLayer::removeCheckpoint(false);
+
         } 
     }
 
     void togglePracticeMode(bool practiceMode) {
         
         PlayLayer::togglePracticeMode(practiceMode);
-
-        if (practiceMode) {
-            if (m_fields->m_firstCheckpoint) m_fields->m_firstCheckpoint->release();
-            m_fields->m_firstCheckpoint = createCheckpoint();
-            m_fields->m_firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));
-            m_fields->m_firstCheckpoint->retain();
-            storeCheckpoint(m_fields->m_firstCheckpoint);
-        }
 
         m_fields->m_isPracticeMode = practiceMode;
     }

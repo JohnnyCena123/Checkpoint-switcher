@@ -22,13 +22,13 @@ class $modify(MyPauseLayer, PauseLayer) {
 
         auto menu = this->getChildByID("right-button-menu");
         if (!menu) {
-            log::warn("Failed to get right-button-menu.");
+            log::error("Failed to get right button menu.");
             return;
         }
 
         auto baseButtonSprite = CCSprite::create("checkpoint-switcher-button-base.png"_spr);
-        auto buttonSprite = CircleButtonSprite::create(baseButtonSprite, CircleBaseColor::Green, CircleBaseSize::BigAlt);
-        buttonSprite->setScale(0.5f);
+        auto buttonSprite = CircleButtonSprite::create(baseButtonSprite, CircleBaseColor::Green, CircleBaseSize::Large);
+        buttonSprite->setScale(129.f / 333.f);
         CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(buttonSprite, this, menu_selector(MyPauseLayer::onCheckpointSwitcher));    
         menu->addChild(button);
         menu->updateLayout();
