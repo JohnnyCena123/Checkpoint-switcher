@@ -63,6 +63,11 @@ class $modify(MyPlayLayer, PlayLayer) {
         return m_checkpointArray;
     }
 
+    CheckpointObject* createCheckpoint() {
+        auto ret = PlayLayer::createCheckpoint();
+        ret->setUserObject("first-checkpoint"_spr, CCBool::create(false));
+    }
+
     void removeCheckpoint(bool p0) {
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
         if (m_currentCheckpoint == m_fields->m_selectedCheckpoint) {
@@ -84,7 +89,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         if (practiceMode) {
             if (m_currentCheckpoint) m_currentCheckpoint->release();
             auto firstCheckpoint = createCheckpoint();
-            firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));;
+            firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));
             storeCheckpoint(firstCheckpoint);
         }
 
