@@ -43,7 +43,8 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resume();
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-        if (m_fields->m_hasCheckpointChanged) { 
+        log::debug("has checkpoint changed? lets see: {} (resume)", m_fields->m_hasCheckpointChanged)
+        if (selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
             if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
@@ -56,6 +57,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        log::debug("has checkpoint changed? lets see: {} (reset level)", m_fields->m_hasCheckpointChanged)
         if (selectedCheckpoint) { 
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
