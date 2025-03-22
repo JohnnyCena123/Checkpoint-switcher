@@ -6,7 +6,17 @@
 
 using namespace geode::prelude;
 
-class MyCheckpointObject : public CheckpointObject;
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
+
+    struct Fields {
+        float m_currentPrecentage;
+    };
+
+    bool init();
+
+    void destructor();
+};
 
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
@@ -123,31 +133,25 @@ class $modify(MyPauseLayer, PauseLayer) {
     }
 };
 
-#include <Geode/modify/CheckpointObject.hpp>
-class $modify(MyCheckpointObject, CheckpointObject) {
 
-    struct Fields {
-        float m_currentPrecentage;
-    };
+bool MyCheckpointObject::init() {
+    if (!CheckpointObject::init()) return false;
 
-    bool init() {
-        if (!CheckpointObject::init()) return false;
+    m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
 
-        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+    // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
 
-        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
-
-        // }
+    // }
 
 
-        return true;
-    }
+    return true;
+}
 
-    void destructor() {
-        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) 
-            static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
-    }
-};
+void MyCheckpointObject::destructor() {
+    if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) 
+        static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
+}
+
 
 bool CheckpointSwitcherLayer::setup() {
     bool hasFailed = false;
