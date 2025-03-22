@@ -6,6 +6,7 @@
 
 using namespace geode::prelude;
 
+class MyCheckpointObject;
 
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
