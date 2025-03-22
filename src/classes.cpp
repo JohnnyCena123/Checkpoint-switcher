@@ -44,7 +44,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
         log::debug("has checkpoint changed? lets see: {} (resume)", m_fields->m_hasCheckpointChanged);
-        if (selectedCheckpoint && m_fields->m_hasCheckpointChanged) { 
+        if (m_fields->m_hasCheckpointChanged) {
             loadFromCheckpoint(selectedCheckpoint);
             m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
             if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
@@ -74,21 +74,34 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void loadFromCheckpoint(CheckpointObject* checkpoint) {
-        if (checkpoint) PlayLayer::loadFromCheckpoint(checkpoint);
+        if (checkpoint != nullptr) {
+            PlayLayer::loadFromCheckpoint(checkpoint); 
+            log::debug("loading from checkpoint no. {} at {:.01}!", 
+                m_checkpointArray->indexOfObject(checkpoint),
+                static_cast<MyCheckpointObject*>(checkpoint)->m_fields->m_currentPrecentage
+            );
+        } else {
+            log::debug("not loading from checkpoint because it is most likely nullptr.");
+        }
     }
 
     void removeCheckpoint(bool p0) {
         if (p0) return;
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
-        if (m_currentCheckpoint != m_fields->m_firstCheckpoint) {
-            if (m_currentCheckpoint) {
+        if (removedCheckpointID != 0) {
+            if (m_fields->m_selectedCheckpoint) {
                 auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
-                m_fields->m_selectedCheckpoint = newCheckpoint;
-                storeCheckpoint(newCheckpoint);
+                setCheckpoint(newCheckpoint);
+                log::debug("setting new checkpoint - checkpoint no. {} at {:.01}!", 
+                    m_checkpointArray->indexOfObject(newCheckpoint),
+                    static_cast<MyCheckpointObject*>(newCheckpoint)->m_fields->m_currentPrecentage
+                );
             }
+            log::debug("removing checkpoint!");
             PlayLayer::removeCheckpoint(false);
-
-        } 
+        } else {
+            log::debug("not removing checkpoint - first checkpoint should stay forever :)");
+        }
     }
 
     void togglePracticeMode(bool practiceMode) {
@@ -130,7 +143,8 @@ class $modify(MyCheckpointObject, CheckpointObject) {
     }
 
     void destructor() {
-        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
+        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) 
+            static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
     }
 };
 
