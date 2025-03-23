@@ -85,9 +85,9 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void loadFromCheckpoint(CheckpointObject* checkpoint) {
-        if (checkpoint != nullptr) {
+        if (checkpoint) {
             PlayLayer::loadFromCheckpoint(checkpoint); 
-            log::debug("loading from checkpoint no. {} at {:.01}!", 
+            log::debug("loading from checkpoint no. {} at {:.01}%!", 
                 m_checkpointArray->indexOfObject(checkpoint),
                 static_cast<MyCheckpointObject*>(checkpoint)->m_fields->m_currentPrecentage
             );
@@ -99,11 +99,12 @@ class $modify(MyPlayLayer, PlayLayer) {
     void removeCheckpoint(bool p0) {
         if (p0) return;
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
+        log::debug("removed checkpoint ID: {}", removedCheckpointID);
         if (removedCheckpointID != 0) {
             if (m_fields->m_selectedCheckpoint) {
                 auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
                 setCheckpoint(newCheckpoint);
-                log::debug("setting new checkpoint - checkpoint no. {} at {:.01}!", 
+                log::debug("setting new checkpoint - checkpoint no. {} at {:.01}%!", 
                     m_checkpointArray->indexOfObject(newCheckpoint),
                     static_cast<MyCheckpointObject*>(newCheckpoint)->m_fields->m_currentPrecentage
                 );
