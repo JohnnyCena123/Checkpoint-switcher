@@ -37,7 +37,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
         if (m_fields->m_hasCheckpointChanged) {
-            storeCheckpoint(checkpoint);
+            storeCheckpoint(selectedCheckpoint);
             resetLevel();
 
             m_fields->m_hasCheckpointChanged = false;
