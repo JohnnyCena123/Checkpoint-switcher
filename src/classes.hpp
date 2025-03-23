@@ -50,6 +50,8 @@ public:
 
     CheckpointSelectorButton* m_selectedButton;
 
+    CheckpointSelectorButton* m_firstCheckpointButton;
+
     CCArray* m_buttonsArray;
 
     void selectCheckpoint(MyCheckpointObject* checkpoint);

@@ -6,17 +6,7 @@
 
 using namespace geode::prelude;
 
-#include <Geode/modify/CheckpointObject.hpp>
-class $modify(MyCheckpointObject, CheckpointObject) {
 
-    struct Fields {
-        float m_currentPrecentage;
-    };
-
-    bool init();
-
-    void destructor();
-};
 
 #include <Geode/modify/PlayLayer.hpp>
 class $modify(MyPlayLayer, PlayLayer) {
@@ -28,18 +18,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 
         CheckpointObject* m_selectedCheckpoint;
 
-        CheckpointObject* m_firstCheckpoint;
+        bool m_isFirstCheckpointSelected;
     };
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
         if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
-
-        if (m_fields->m_firstCheckpoint) m_fields->m_firstCheckpoint->release();
-        m_fields->m_firstCheckpoint = createCheckpoint();
-        m_fields->m_firstCheckpoint->setUserObject("first-checkpoint"_spr, CCBool::create(true));
-        m_fields->m_firstCheckpoint->retain();
-        m_fields->m_selectedCheckpoint = m_fields->m_firstCheckpoint;
-        storeCheckpoint(m_fields->m_firstCheckpoint);
 
         return true;
     } 
@@ -54,11 +37,8 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resume();
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-        log::debug("has checkpoint changed? lets see: {} (resume)", m_fields->m_hasCheckpointChanged);
         if (m_fields->m_hasCheckpointChanged) {
-            loadFromCheckpoint(selectedCheckpoint);
-            m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
-            if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
+            resetLevel();
 
             m_fields->m_hasCheckpointChanged = false;
         }
@@ -66,13 +46,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void resetLevel() {
         PlayLayer::resetLevel();
-
+        
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-        log::debug("has checkpoint changed? lets see: {} (reset level)", m_fields->m_hasCheckpointChanged);
         if (selectedCheckpoint) { 
             loadFromCheckpoint(selectedCheckpoint);
-            m_player1->setPosition(selectedCheckpoint->m_player1Checkpoint->m_position);
-            if (m_gameState.m_isDualMode) m_player2->setPosition(selectedCheckpoint->m_player2Checkpoint->m_position);
         }
     }
 
@@ -87,32 +64,19 @@ class $modify(MyPlayLayer, PlayLayer) {
     void loadFromCheckpoint(CheckpointObject* checkpoint) {
         if (checkpoint) {
             PlayLayer::loadFromCheckpoint(checkpoint); 
-            log::debug("loading from checkpoint no. {} at {:.01}%!", 
-                m_checkpointArray->indexOfObject(checkpoint),
-                static_cast<MyCheckpointObject*>(checkpoint)->m_fields->m_currentPrecentage
-            );
-        } else {
-            log::debug("not loading from checkpoint because it is most likely nullptr.");
         }
     }
 
     void removeCheckpoint(bool p0) {
         if (p0) return;
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
-        log::debug("removed checkpoint ID: {}", removedCheckpointID);
-        if (removedCheckpointID != 0) {
+        if (removedCheckpointID < 4294967455) {
             if (m_fields->m_selectedCheckpoint) {
                 auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
-                setCheckpoint(newCheckpoint);
-                log::debug("setting new checkpoint - checkpoint no. {} at {:.01}%!", 
-                    m_checkpointArray->indexOfObject(newCheckpoint),
-                    static_cast<MyCheckpointObject*>(newCheckpoint)->m_fields->m_currentPrecentage
-                );
+                if (newCheckpoint) setCheckpoint(newCheckpoint);
+                else log::error("failed to change to the previous checkpoint.");
             }
-            log::debug("removing checkpoint!");
             PlayLayer::removeCheckpoint(false);
-        } else {
-            log::debug("not removing checkpoint - first checkpoint should stay forever :)");
         }
     }
 
@@ -129,29 +93,35 @@ class $modify(MyPlayLayer, PlayLayer) {
 class $modify(MyPauseLayer, PauseLayer) {
     void onQuit(CCObject* sender) {
         PauseLayer::onQuit(sender);
-
-        static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_firstCheckpoint->release();
     }
 };
 
 
-bool MyCheckpointObject::init() {
-    if (!CheckpointObject::init()) return false;
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
 
-    m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+    struct Fields {
+        float m_currentPrecentage;
+    };
 
-    // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+    bool init() {
+        if (!CheckpointObject::init()) return false;
+    
+        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+    
+        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+    
+        // }
+    
+    
+        return true;
+    }
 
-    // }
-
-
-    return true;
-}
-
-void MyCheckpointObject::destructor() {
-    if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) 
-        static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
-}
+    void destructor() {
+        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) 
+            static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
+    }
+};
 
 
 bool CheckpointSwitcherLayer::setup() {
@@ -165,20 +135,20 @@ bool CheckpointSwitcherLayer::setup() {
 
     m_selectedButton = nullptr;
     
-    m_toggleSwitcherButtonSprite = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png"); if (!m_toggleSwitcherButtonSprite) {log::error("toggle switcher button sprite failed to initialize."); hasFailed = true;}
-    m_toggleSwitcherButtonCheckmarkSprite = CCSprite::createWithSpriteFrameName("GJ_completesIcon_001.png"); if (!m_toggleSwitcherButtonCheckmarkSprite) {log::error("toggle switcher button checkmark sprite failed to initialize."); hasFailed = true;}
+    m_toggleSwitcherButtonSprite = CCSprite::createWithSpriteFrameName("GJ_checkOff_001.png"); /* nullptr check */ if (!m_toggleSwitcherButtonSprite) {log::error("toggle switcher button sprite failed to initialize."); hasFailed = true;}
+    m_toggleSwitcherButtonCheckmarkSprite = CCSprite::createWithSpriteFrameName("GJ_completesIcon_001.png"); /* nullptr check */ if (!m_toggleSwitcherButtonCheckmarkSprite) {log::error("toggle switcher button checkmark sprite failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButtonCheckmarkSprite->setVisible(Mod::get()->getSavedValue<bool>("is-switcher-on"));
     m_toggleSwitcherButtonSprite->addChildAtPosition(m_toggleSwitcherButtonCheckmarkSprite, Anchor::Center);
-    m_toggleSwitcherButton = CCMenuItemSpriteExtra::create(m_toggleSwitcherButtonSprite, this, menu_selector(CheckpointSwitcherLayer::onToggleSwitcher)); if (!m_toggleSwitcherButton) {log::error("toggle switcher button failed to initialize."); hasFailed = true;}
+    m_toggleSwitcherButton = CCMenuItemSpriteExtra::create(m_toggleSwitcherButtonSprite, this, menu_selector(CheckpointSwitcherLayer::onToggleSwitcher)); /* nullptr check */ if (!m_toggleSwitcherButton) {log::error("toggle switcher button failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButton->ignoreAnchorPointForPosition(true);
     m_buttonMenu->addChildAtPosition(m_toggleSwitcherButton, Anchor::BottomLeft, ccp(10.f, 10.f));
     
-    m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt"); if (!m_toggleSwitcherButtonLabel) {log::error("toggle switcher button label failed to initialize."); hasFailed = true;}
+    m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt"); /* nullptr check */ if (!m_toggleSwitcherButtonLabel) {log::error("toggle switcher button label failed to initialize."); hasFailed = true;}
     m_toggleSwitcherButtonLabel->setScale(0.33333f);
     m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(110.f, 25.f));
 
-    m_applyButtonEnabledSprite = ButtonSprite::create("Apply"); if (!m_applyButtonEnabledSprite) {log::error("apply button enabled sprite failed to initialize."); hasFailed = true;}
-    m_applyButtonDisabledSprite = ButtonSprite::create("Apply"); if (!m_applyButtonDisabledSprite) {log::error("apply button disabled sprite failed to initialize."); hasFailed = true;}
+    m_applyButtonEnabledSprite = ButtonSprite::create("Apply"); /* nullptr check */ if (!m_applyButtonEnabledSprite) {log::error("apply button enabled sprite failed to initialize."); hasFailed = true;}
+    m_applyButtonDisabledSprite = ButtonSprite::create("Apply"); /* nullptr check */ if (!m_applyButtonDisabledSprite) {log::error("apply button disabled sprite failed to initialize."); hasFailed = true;}
     m_applyButtonDisabledSprite->setOpacity(155);
     m_applyButtonDisabledSprite->setColor(ccGRAY);
     m_applyButton = CCMenuItemSpriteExtra::create(m_applyButtonEnabledSprite, m_applyButtonDisabledSprite, this, menu_selector(CheckpointSwitcherLayer::onApply)); if (!m_applyButton) {log::error("apply button failed to initialize."); hasFailed = true;}
@@ -186,7 +156,7 @@ bool CheckpointSwitcherLayer::setup() {
     m_applyButton->setOpacity(30);
     m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, ccp(0, m_applyButton->getContentHeight() / 2.f + 10.f));
 
-    m_checkpointSelectorMenu = CCMenu::create(); if (!m_checkpointSelectorMenu) {log::error("checkpoint selector menu failed to initialize."); hasFailed = true;}
+    m_checkpointSelectorMenu = CCMenu::create(); /* nullptr check */ if (!m_checkpointSelectorMenu) {log::error("checkpoint selector menu failed to initialize."); hasFailed = true;}
     m_checkpointSelectorMenu->setLayout(
         RowLayout::create()
             ->setGap(30.f)
@@ -204,14 +174,14 @@ bool CheckpointSwitcherLayer::setup() {
     m_checkpoints = m_currentPlayLayer->getCheckpoints();
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
-    m_buttonsArray = CCArray::create(); if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
+    m_buttonsArray = CCArray::create(); /* nullptr check */ if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
 
     m_checkpointIndicatorsNode = CCNode::create();
     
     if (!m_isPracticeMode) {
-        auto practiceOffLabel = CCNode::create(); if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
-        auto practiceOffLabelTop = CCLabelBMFont::create("Enable practice mode", "bigFont.fnt"); if (!practiceOffLabelTop) {log::error("practice off label top failed to initialize."); hasFailed = true;}
-        auto practiceOffLabelBottom = CCLabelBMFont::create("to use the mod!", "bigFont.fnt"); if (!practiceOffLabelBottom) {log::error("practice off label bottom failed to initialize."); hasFailed = true;}
+        auto practiceOffLabel = CCNode::create(); /* nullptr check */ if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
+        auto practiceOffLabelTop = CCLabelBMFont::create("Enable practice mode", "bigFont.fnt"); /* nullptr check */ if (!practiceOffLabelTop) {log::error("practice off label top failed to initialize."); hasFailed = true;}
+        auto practiceOffLabelBottom = CCLabelBMFont::create("to use the mod!", "bigFont.fnt"); /* nullptr check */ if (!practiceOffLabelBottom) {log::error("practice off label bottom failed to initialize."); hasFailed = true;}
 
         practiceOffLabelTop->setPositionY(20);
         practiceOffLabelBottom->setPositionY(-20);
@@ -262,6 +232,9 @@ bool CheckpointSwitcherLayer::setup() {
     
         m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
         
+        m_firstCheckpointButton = CheckpointSelectorButton::create(0, nullptr); /* nullptr check */ if (!m_firstCheckpointButton) {log::error("first checkpoint button failed to initialize."); hasFailed = true;}
+        m_checkpointSelectorMenu->addChild(m_firstCheckpointButton);
+
         for (int i = 0; i < m_checkpoints->count(); i++) {
 
             auto checkpoint = static_cast<MyCheckpointObject*>(m_checkpoints->objectAtIndex(i));
@@ -281,7 +254,7 @@ bool CheckpointSwitcherLayer::setup() {
             checkpointIndicatorSprite->setID(fmt::format("checkpoint-indicator-no-{}", i + 1).c_str());
 
 
-            auto checkpointButton = CheckpointSelectorButton::create(i + 1, checkpoint); if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
+            auto checkpointButton = CheckpointSelectorButton::create(i + 1, checkpoint); /* nullptr check */ if (!checkpointButton) {log::error("checkpoint button no. {} failed to initialize.", i + 1); hasFailed = true;}
             m_checkpointSelectorMenu->addChild(checkpointButton);
             m_buttonsArray->addObject(checkpointButton);
 
@@ -360,7 +333,7 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
 bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint) {
     bool hasFailed = false;
 
-    m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png"); if (!m_checkpointSprite) {log::error("checkpoint sprite failed to initialize."); hasFailed = true;} 
+    m_checkpointSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png"); /* nullptr check */ if (!m_checkpointSprite) {log::error("checkpoint sprite failed to initialize."); hasFailed = true;} 
     m_checkpointSprite->setScale(80 / m_checkpointSprite->getContentHeight());
     m_mainNode = CCNode::create();
     m_mainNode->setContentSize(m_checkpointSprite->getScaledContentSize());
@@ -371,18 +344,16 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_buttonID = buttonID;
     m_checkpoint = checkpoint;
 
-    m_isScaledUp = false;
-
-    m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png"); if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); hasFailed = true;}
+    m_checkpointOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png"); /* nullptr check */ if (!m_checkpointOutline) {log::error("checkpoint outline failed to initialize."); hasFailed = true;}
     m_checkpointOutline->setVisible(false);
     m_checkpointOutline->setColor(ccc3(255, 243, 69));
     m_checkpointSprite->addChildAtPosition(m_checkpointOutline, Anchor::Center);
 
-    m_checkpointGlowOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_glow_001.png"); if (!m_checkpointGlowOutline) {log::error("checkpoint glow outline failed to initialize."); hasFailed = true;}
+    m_checkpointGlowOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_glow_001.png"); /* nullptr check */ if (!m_checkpointGlowOutline) {log::error("checkpoint glow outline failed to initialize."); hasFailed = true;}
     m_checkpointGlowOutline->setColor(ccc3(255, 253, 137));
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
-    m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
+    m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); /* nullptr check */ if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
     if (m_checkpoint->getUserObject("first-checkpoint"_spr)) m_buttonLabel->setString("The start!");
     m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 10.f));
     m_buttonLabel->setScale(0.4);
