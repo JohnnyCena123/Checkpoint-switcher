@@ -353,8 +353,7 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_checkpointGlowOutline->setColor(ccc3(255, 253, 137));
     m_checkpointOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
-    m_buttonLabel = CCLabelBMFont::create(fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str(), "bigFont.fnt"); /* nullptr check */ if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
-    if (m_checkpoint->getUserObject("first-checkpoint"_spr)) m_buttonLabel->setString("The start!");
+    m_buttonLabel = CCLabelBMFont::create(m_checkpoint ? fmt::format("Checkpoint at {}%", (int)m_checkpoint->m_fields->m_currentPrecentage).c_str() : "The start!", "bigFont.fnt"); /* nullptr check */ if (!m_buttonLabel) {log::error("button label failed to initialize."); hasFailed = true;}
     m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 10.f));
     m_buttonLabel->setScale(0.4);
 

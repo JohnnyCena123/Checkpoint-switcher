@@ -48,11 +48,9 @@ public:
     CCSprite* m_progressBarCloneFilling;
     CCNode* m_checkpointIndicatorsNode;
 
-    CheckpointSelectorButton* m_selectedButton;
-
     CheckpointSelectorButton* m_firstCheckpointButton;
-
     CCArray* m_buttonsArray;
+    CheckpointSelectorButton* m_selectedButton;
 
     void selectCheckpoint(MyCheckpointObject* checkpoint);
         
