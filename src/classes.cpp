@@ -31,8 +31,13 @@ class $modify(MyPlayLayer, PlayLayer) {
         m_fields->m_hasCheckpointChanged = true;
     }
 
+    void loadFromCheckpoint(CheckpointObject* checkpoint) {
+        if (checkpoint) PlayLayer::loadFromCheckpoint(checkpoint);
+    }
+
     void resume() {
         PlayLayer::resume();
+        if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
 
         auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
         if (m_fields->m_hasCheckpointChanged) {
@@ -45,11 +50,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void resetLevel() {
         PlayLayer::resetLevel();
+        if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
         
-        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-        if (selectedCheckpoint) { 
-            loadFromCheckpoint(selectedCheckpoint);
-        }
+        loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
 
     bool getIsPracticeMode() {
@@ -64,7 +67,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
         if (p0) removedCheckpointID = 0;
         log::debug("removing checkpoint at index {}!", removedCheckpointID);
-        if (removedCheckpointID < 4294967295) {
+        if (removedCheckpointID > 0) {
             if (m_fields->m_selectedCheckpoint) {
                 CheckpointObject* newCheckpoint = nullptr;
                 if ((removedCheckpointID - 1) < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
@@ -173,12 +176,12 @@ bool CheckpointSwitcherLayer::setup() {
     m_checkpoints = m_currentPlayLayer->getCheckpoints();
     m_isPracticeMode = m_currentPlayLayer->getIsPracticeMode();
 
-    m_buttonsArray = CCArray::create(); /* nullptr check */ if (!m_buttonsArray) {log::error("buttons array failed to initialize."); hasFailed = true;}
+    m_buttonsArray = CCArray::create(); 
 
     m_checkpointIndicatorsNode = CCNode::create();
     
     if (!m_isPracticeMode) {
-        auto practiceOffLabel = CCNode::create(); /* nullptr check */ if (!practiceOffLabel) {log::error("practice off label (node) failed to initialize."); hasFailed = true;}
+        auto practiceOffLabel = CCNode::create(); 
         auto practiceOffLabelTop = CCLabelBMFont::create("Enable practice mode", "bigFont.fnt"); /* nullptr check */ if (!practiceOffLabelTop) {log::error("practice off label top failed to initialize."); hasFailed = true;}
         auto practiceOffLabelBottom = CCLabelBMFont::create("to use the mod!", "bigFont.fnt"); /* nullptr check */ if (!practiceOffLabelBottom) {log::error("practice off label bottom failed to initialize."); hasFailed = true;}
 
@@ -286,6 +289,7 @@ void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
     bool isSwitcherOn = Mod::get()->getSavedValue<bool>("is-switcher-on");
     Mod::get()->setSavedValue("is-switcher-on", !isSwitcherOn);
     m_toggleSwitcherButtonCheckmarkSprite->setVisible(isSwitcherOn);
+    m_currentPlayLayer->m_fields->m_selectedCheckpoint = nullptr;
 }
  
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
@@ -320,7 +324,6 @@ CheckpointSwitcherLayer* CheckpointSwitcherLayer::get() {
 
 CheckpointSwitcherLayer::~CheckpointSwitcherLayer() {
     s_currentLayer = nullptr;
-    m_checkpointIndicatorsNode->removeFromParent();
 }
 
 CheckpointSwitcherLayer* CheckpointSwitcherLayer::s_currentLayer = nullptr;
