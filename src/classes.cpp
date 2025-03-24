@@ -62,17 +62,19 @@ class $modify(MyPlayLayer, PlayLayer) {
 
     void removeCheckpoint(bool p0) {
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
+        if (p0) removedCheckpointID = 0;
+        log::debug("removing checkpoint at index {}!", removedCheckpointID);
         if (removedCheckpointID < 4294967295) {
             if (m_fields->m_selectedCheckpoint) {
-                CheckpointObject* newCheckpoint;
-                if (removedCheckpointID - 1 < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
+                CheckpointObject* newCheckpoint = nullptr;
+                if ((removedCheckpointID - 1) < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
                 else log::warn("index {} is not in the checkpoints array.", removedCheckpointID - 1);
-                
+
                 if (newCheckpoint) setCheckpoint(newCheckpoint);
                 else log::warn("failed to change to the previous checkpoint when the selected checkpoint was removed.");
             }
-            PlayLayer::removeCheckpoint(false);
         }
+        PlayLayer::removeCheckpoint(p0);
     }
 
     void togglePracticeMode(bool practiceMode) {
