@@ -72,8 +72,9 @@ class $modify(MyPlayLayer, PlayLayer) {
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
         if (removedCheckpointID < 4294967455) {
             if (m_fields->m_selectedCheckpoint) {
-                if (removedCheckpointID - 1 < m_checkpointArray->count()) auto newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
-                else log::error("index {} is not in the checkpoints array.", removedCheckpointID - 1)
+                CheckpointObject* newCheckpoint;
+                if (removedCheckpointID - 1 < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
+                else log::error("index {} is not in the checkpoints array.", removedCheckpointID - 1);
                 
                 if (newCheckpoint) setCheckpoint(newCheckpoint);
                 else log::error("failed to change to the previous checkpoint.");
