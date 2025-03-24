@@ -17,8 +17,6 @@ class $modify(MyPlayLayer, PlayLayer) {
         bool m_hasCheckpointChanged;
 
         CheckpointObject* m_selectedCheckpoint;
-
-        bool m_isFirstCheckpointSelected;
     };
 
     bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
@@ -28,6 +26,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     } 
 
     void setCheckpoint(CheckpointObject* checkpoint) {
+        m_currentCheckpoint = checkpoint;
         m_fields->m_selectedCheckpoint = checkpoint;
         m_fields->m_hasCheckpointChanged = true;
     }
@@ -61,23 +60,16 @@ class $modify(MyPlayLayer, PlayLayer) {
         return m_checkpointArray;
     }
 
-    void loadFromCheckpoint(CheckpointObject* checkpoint) {
-        if (checkpoint) {
-            PlayLayer::loadFromCheckpoint(checkpoint); 
-        }
-    }
-
     void removeCheckpoint(bool p0) {
-        if (p0) return;
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
-        if (removedCheckpointID < 4294967455) {
+        if (removedCheckpointID < 4294967295) {
             if (m_fields->m_selectedCheckpoint) {
                 CheckpointObject* newCheckpoint;
                 if (removedCheckpointID - 1 < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
-                else log::error("index {} is not in the checkpoints array.", removedCheckpointID - 1);
+                else log::warn("index {} is not in the checkpoints array.", removedCheckpointID - 1);
                 
                 if (newCheckpoint) setCheckpoint(newCheckpoint);
-                else log::error("failed to change to the previous checkpoint.");
+                else log::warn("failed to change to the previous checkpoint when the selected checkpoint was removed.");
             }
             PlayLayer::removeCheckpoint(false);
         }
@@ -121,9 +113,11 @@ class $modify(MyCheckpointObject, CheckpointObject) {
     }
 
     void destructor() {
-        if (this == static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint) 
-            static_cast<MyPlayLayer*>(PlayLayer::get())->m_fields->m_selectedCheckpoint = nullptr;
-    }
+        auto playLayer = static_cast<MyPlayLayer*>(PlayLayer::get());
+        if (this == playLayer->m_currentCheckpoint) 
+            playLayer->m_currentCheckpoint = nullptr;
+            playLayer->m_fields->m_selectedCheckpoint = nullptr;
+        }
 };
 
 
