@@ -19,11 +19,11 @@ class $modify(MyPlayLayer, PlayLayer) {
         CheckpointObject* m_selectedCheckpoint;
     };
 
-    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
-        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
+    // bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
+    //     if (!PlayLayer::init(level, useReplay, dontCreateObjects)) return false;
 
-        return true;
-    } 
+    //     return true;
+    // } 
 
     void setCheckpoint(CheckpointObject* checkpoint) {
         m_currentCheckpoint = checkpoint;
@@ -64,6 +64,12 @@ class $modify(MyPlayLayer, PlayLayer) {
         return m_checkpointArray;
     }
 
+    CheckpointObject* createCheckpoint() {
+        auto ret = PlayLayer::createCheckpoint();
+        if (ret) ret->m_fields->m_currentPrecentage = this->getCurrentPercent();
+        return ret;
+    }
+
     void removeCheckpoint(bool p0) {
 
         CheckpointObject* removedCheckpoint;
@@ -96,28 +102,25 @@ class $modify(MyPauseLayer, PauseLayer) {
 };
 
 
-#include <Geode/modify/CheckpointObject.hpp>
-class $modify(MyCheckpointObject, CheckpointObject) {
+// #include <Geode/modify/CheckpointObject.hpp>
+// class $modify(MyCheckpointObject, CheckpointObject) {
 
-    struct Fields {
-        float m_currentPrecentage = 0.f;
-    };
+//     struct Fields {
+//         float m_currentPrecentage = 0.f;
+//     };
 
-    bool init() {
-        if (!CheckpointObject::init()) return false;
+//     bool init() {
+//         if (!CheckpointObject::init()) return false;
+
+//         // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
     
-        if (PlayLayer::get()) m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
-        else log::warn("failed to get the current play layer.");
-
-        // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
-    
-        // }
+//         // }
     
     
-        return true;
-    }
+//         return true;
+//     }
 
-};
+// };
 
 
 bool CheckpointSwitcherLayer::setup() {
