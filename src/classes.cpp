@@ -278,8 +278,8 @@ bool CheckpointSwitcherLayer::setup() {
 void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
     bool isSwitcherOn = Mod::get()->getSavedValue<bool>("is-switcher-on");
     log::debug("the switcher is now {}.", isSwitcherOn ? "on" : "disabled");
-    Mod::get()->setSavedValue("is-switcher-on", isSwitcherOn ? false : true);
-    m_toggleSwitcherButtonCheckmarkSprite->setVisible(isSwitcherOn);
+    Mod::get()->setSavedValue("is-switcher-on", !isSwitcherOn);
+    m_toggleSwitcherButtonCheckmarkSprite->setVisible(!isSwitcherOn);
 }
  
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
