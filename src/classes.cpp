@@ -124,7 +124,7 @@ bool CheckpointSwitcherLayer::setup() {
 
     this->setID("CheckpointSwitcherLayer"_spr);
 
-    this->setTitle("Choose checkpoint");
+    this->setTitle("Choose A Checkpoint");
 
     m_selectedButton = nullptr;
     
