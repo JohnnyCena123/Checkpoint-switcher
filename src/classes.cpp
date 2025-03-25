@@ -102,25 +102,25 @@ class $modify(MyPauseLayer, PauseLayer) {
 };
 
 
-// #include <Geode/modify/CheckpointObject.hpp>
-// class $modify(MyCheckpointObject, CheckpointObject) {
+#include <Geode/modify/CheckpointObject.hpp>
+class $modify(MyCheckpointObject, CheckpointObject) {
 
-//     struct Fields {
-//         float m_currentPrecentage = 0.f;
-//     };
+    struct Fields {
+        float m_currentPrecentage = 0.f;
+    };
 
-//     bool init() {
-//         if (!CheckpointObject::init()) return false;
+    // bool init() {
+    //     if (!CheckpointObject::init()) return false;
 
-//         // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+    //     // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
     
-//         // }
+    //     // }
     
     
-//         return true;
-//     }
+    //     return true;
+    // }
 
-// };
+};
 
 
 bool CheckpointSwitcherLayer::setup() {
