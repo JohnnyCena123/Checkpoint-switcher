@@ -32,7 +32,6 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void loadFromCheckpoint(CheckpointObject* checkpoint) {
-        log::debug("loading from checkpoint at adress {}", static_cast<void*>(checkpoint));
         if (checkpoint) PlayLayer::loadFromCheckpoint(checkpoint);
     }
 
@@ -53,8 +52,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
         if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
         
-        log::debug("loading from the selected checkpoint at address {}! (reset level)", static_cast<void*>(m_fields->m_selectedCheckpoint));
-        loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
 
     bool getIsPracticeMode() {
@@ -66,22 +64,6 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void removeCheckpoint(bool p0) {
-        auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
-        if (p0) removedCheckpointID = 0;
-        log::debug("removing checkpoint at index {} and adress {}!", removedCheckpointID, static_cast<void*>(m_currentCheckpoint));
-        if (removedCheckpointID > 0) {
-            if (m_fields->m_selectedCheckpoint) {
-                CheckpointObject* newCheckpoint = nullptr;
-                if ((removedCheckpointID - 1) < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
-                else log::warn("index {} is not in the checkpoints array.", removedCheckpointID - 1);
-
-                
-                log::debug("setting new checkpoint at adress {}!", static_cast<void*>(newCheckpoint));
-                setCheckpoint(newCheckpoint);
-                
-                if (!newCheckpoint) log::warn("failed to change to the previous checkpoint when the selected checkpoint was removed.");
-            }
-        }
         PlayLayer::removeCheckpoint(p0);
     }
 
@@ -238,9 +220,12 @@ bool CheckpointSwitcherLayer::setup() {
         m_progressBarClone->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center);
     
         m_checkpointIndicatorsNode->setID("checkpoint-indicators-node");
+
+
+        // todo: make this work
         
-        m_firstCheckpointButton = CheckpointSelectorButton::create(0, nullptr); /* nullptr check */ if (!m_firstCheckpointButton) {log::error("first checkpoint button failed to initialize."); hasFailed = true;}
-        m_checkpointSelectorMenu->addChild(m_firstCheckpointButton);
+        // m_firstCheckpointButton = CheckpointSelectorButton::create(0, nullptr); /* nullptr check */ if (!m_firstCheckpointButton) {log::error("first checkpoint button failed to initialize."); hasFailed = true;}
+        // m_checkpointSelectorMenu->addChild(m_firstCheckpointButton);
 
         for (int i = 0; i < m_checkpoints->count(); i++) {
 
@@ -346,7 +331,10 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
     m_mainNode->setContentSize(m_checkpointSprite->getScaledContentSize());
     m_mainNode->addChildAtPosition(m_checkpointSprite, Anchor::Center);
     
-    if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) {log::error("CCMenuItemSpriteExtra failed to initialize."); hasFailed = true;};
+    if (!CCMenuItemSpriteExtra::init(m_mainNode, m_mainNode, this, menu_selector(CheckpointSelectorButton::onSelectButton))) {
+        log::error("CCMenuItemSpriteExtra failed to initialize."); 
+        hasFailed = true;
+    }
 
     m_buttonID = buttonID;
     m_checkpoint = checkpoint;
@@ -380,6 +368,7 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
 
     auto lastSelectedButton = CheckpointSwitcherLayer::get()->m_selectedButton;
 
+    // todo: make it work with the first button
     CheckpointSwitcherLayer::get()->selectCheckpoint(m_checkpoint);
     CheckpointSwitcherLayer::get()->enableApplyButton();
 
