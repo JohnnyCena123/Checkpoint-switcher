@@ -65,6 +65,17 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void removeCheckpoint(bool p0) {
+
+        CheckpointObject* removedCheckpoint;
+        if (p0) removedCheckpoint = m_currentCheckpoint;
+        else removedCheckpoint = static_cast<CheckpointObject*>(m_checkpointsArray->objectAtIndex(0));
+
+        log::debug("removing checkpoint at address {}!", static_cast<void*>(removedCheckpoint));
+        if (removedCheckpoint == m_currentCheckpoint) {
+            log::debug("setting the selected checkpoint to nullptr because it was removed.");
+            m_currentCheckpoint = m_checkpointsArray->count() ? static_cast<CheckpointObject*>(m_checkpointsArray->objectAtIndex(m_checkpointsArray->count() - 1)) : nullptr;
+            m_fields->m_selectedCheckpoint = nullptr;
+        }
         PlayLayer::removeCheckpoint(p0);
     }
 
@@ -105,14 +116,6 @@ class $modify(MyCheckpointObject, CheckpointObject) {
         return true;
     }
 
-    void destructor() {
-        auto playLayer = static_cast<MyPlayLayer*>(PlayLayer::get());
-        log::debug("destructing CheckpointObject at address {}!", static_cast<void*>(this));
-        if (this == playLayer->m_currentCheckpoint) 
-            log::debug("setting the selected checkpoint to nullptr because it was removed.");
-            playLayer->m_currentCheckpoint = nullptr;
-            playLayer->m_fields->m_selectedCheckpoint = nullptr;
-        }
 };
 
 
