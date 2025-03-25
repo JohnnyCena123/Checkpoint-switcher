@@ -52,7 +52,9 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
         if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
         
-        if (m_fields->m_selectedCheckpoint) loadFromCheckpoint(m_fields->m_selectedCheckpoint);
+        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        log::debug("loading from checkpoint at address {}!", static_cast<void*>(selectedCheckpoint));
+        if (selectedCheckpoint) loadFromCheckpoint(selectedCheckpoint);
     }
 
     bool getIsPracticeMode() {
@@ -106,7 +108,9 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 
     void destructor() {
         auto playLayer = static_cast<MyPlayLayer*>(PlayLayer::get());
+        log::debug("destructing CheckpointObject at address {}!", static_cast<void*>(this));
         if (this == playLayer->m_currentCheckpoint) 
+            log::debug("setting the selected checkpoint to nullptr because it was removed.");
             playLayer->m_currentCheckpoint = nullptr;
             playLayer->m_fields->m_selectedCheckpoint = nullptr;
         }
