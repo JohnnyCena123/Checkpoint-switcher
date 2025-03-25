@@ -32,7 +32,15 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void loadFromCheckpoint(CheckpointObject* checkpoint) {
-        if (checkpoint) PlayLayer::loadFromCheckpoint(checkpoint);
+
+        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
+        if (selectedCheckpoint && Mod::get()->getSavedValue<bool>("is-switcher-on")) {
+            PlayLayer::loadFromCheckpoint(selectedCheckpoint);
+            log::debug("loading from the selected checkpoint at address {}!", static_cast<void*>(selectedCheckpoint));
+        } else {
+            PlayLayer::loadFromCheckpoint(checkpoint);
+            log::debug("loading from the passed checkpoint at address {}!", static_cast<void*>(checkpoint));
+        }
     }
 
     void resume() {
@@ -46,15 +54,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 
             m_fields->m_hasCheckpointChanged = false;
         }
-    }
-
-    void resetLevel() {
-        PlayLayer::resetLevel();
-        if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
-        
-        auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-        log::debug("loading from checkpoint at address {}!", static_cast<void*>(selectedCheckpoint));
-        if (selectedCheckpoint) loadFromCheckpoint(selectedCheckpoint);
     }
 
     bool getIsPracticeMode() {
