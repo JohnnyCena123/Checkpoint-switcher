@@ -277,9 +277,9 @@ bool CheckpointSwitcherLayer::setup() {
 
 void CheckpointSwitcherLayer::onToggleSwitcher(CCObject* sender) {
     bool isSwitcherOn = Mod::get()->getSavedValue<bool>("is-switcher-on");
-    Mod::get()->setSavedValue("is-switcher-on", !isSwitcherOn);
+    log::debug("the switcher is now {}.", isSwitcherOn ? "on" : "disabled");
+    Mod::get()->setSavedValue("is-switcher-on", isSwitcherOn ? false : true);
     m_toggleSwitcherButtonCheckmarkSprite->setVisible(isSwitcherOn);
-    m_currentPlayLayer->m_fields->m_selectedCheckpoint = nullptr;
 }
  
 void CheckpointSwitcherLayer::onApply(CCObject* sender) {
