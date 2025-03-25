@@ -32,6 +32,7 @@ class $modify(MyPlayLayer, PlayLayer) {
     }
 
     void loadFromCheckpoint(CheckpointObject* checkpoint) {
+        log::debug("loading from checkpoint at adress {}", static_cast<void*>(checkpoint));
         if (checkpoint) PlayLayer::loadFromCheckpoint(checkpoint);
     }
 
@@ -52,7 +53,7 @@ class $modify(MyPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
         if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
         
-        log::debug("loading from the selected checkpoint at address {}!", m_fields->m_selectedCheckpoint);
+        log::debug("loading from the selected checkpoint at address {}! (reset level)", static_cast<void*>(m_fields->m_selectedCheckpoint));
         loadFromCheckpoint(m_fields->m_selectedCheckpoint);
     }
 
@@ -67,18 +68,18 @@ class $modify(MyPlayLayer, PlayLayer) {
     void removeCheckpoint(bool p0) {
         auto removedCheckpointID = m_checkpointArray->indexOfObject(m_currentCheckpoint);
         if (p0) removedCheckpointID = 0;
-        log::debug("removing checkpoint at index {} and adress {}!", removedCheckpointID, m_currentCheckpoint);
+        log::debug("removing checkpoint at index {} and adress {}!", removedCheckpointID, static_cast<void*>(m_currentCheckpoint));
         if (removedCheckpointID > 0) {
             if (m_fields->m_selectedCheckpoint) {
                 CheckpointObject* newCheckpoint = nullptr;
                 if ((removedCheckpointID - 1) < m_checkpointArray->count()) newCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(removedCheckpointID - 1));
                 else log::warn("index {} is not in the checkpoints array.", removedCheckpointID - 1);
 
-                if (newCheckpoint) {
-                    log::debug("setting new checkpoint at adress {}!", newCheckpoint);
-                    setCheckpoint(newCheckpoint);
-                }
-                else log::warn("failed to change to the previous checkpoint when the selected checkpoint was removed.");
+                
+                log::debug("setting new checkpoint at adress {}!", static_cast<void*>(newCheckpoint));
+                setCheckpoint(newCheckpoint);
+                
+                if (!newCheckpoint) log::warn("failed to change to the previous checkpoint when the selected checkpoint was removed.");
             }
         }
         PlayLayer::removeCheckpoint(p0);
