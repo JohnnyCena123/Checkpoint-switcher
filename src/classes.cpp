@@ -100,14 +100,15 @@ class $modify(MyPauseLayer, PauseLayer) {
 class $modify(MyCheckpointObject, CheckpointObject) {
 
     struct Fields {
-        float m_currentPrecentage;
+        float m_currentPrecentage = 0.f;
     };
 
     bool init() {
         if (!CheckpointObject::init()) return false;
     
-        m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
-    
+        if (PlayLayer::get()) m_fields->m_currentPrecentage = PlayLayer::get()->getCurrentPercent();
+        else log::warn("failed to get the current play layer.");
+
         // if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
     
         // }
