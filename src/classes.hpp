@@ -45,7 +45,7 @@ protected:
 public:
 
     CCSprite* m_progressBarClone;
-    CCSprite* m_progressBarCloneFilling;
+    CCSprite* m_progressBarCloneFill;
     CCNode* m_checkpointIndicatorsNode;
 
     CheckpointSelectorButton* m_firstCheckpointButton;
@@ -70,10 +70,11 @@ private:
 
     CCNode* m_mainNode;
 
-    CCSprite* m_checkpointSprite;
+    CCSprite* m_buttonSprite;
+
     CCLabelBMFont* m_buttonLabel;
 
-    CCSprite* m_checkpointOutline;
+    CCSprite* m_buttonOutline;
     CCSprite* m_checkpointGlowOutline;
 
     bool m_isScaledUp;

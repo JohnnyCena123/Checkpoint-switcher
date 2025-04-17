@@ -28,8 +28,8 @@
 			"name": "Enable checkpoint previews",
 			"description": "Saves a screenshot each time a checkpoint is placed, and shows it to you in the switcher popup.",
 			"type": "bool",
-			"default": false,
-			"enable-if": "false",
+			"default": true,
+			"enable-if": "EnablePreviews",
 			"enable-if-description": "This feature is coming soon!"
 		},
 		"EnableUI": {
