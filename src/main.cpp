@@ -11,6 +11,10 @@ $execute {
         log::info("Loading the mod for the first time!");
         Mod::get()->setSavedValue("is-switcher-on", true);
     }
+
+    Mod::get()->setSavedValue("previews", true);
+    Mod::get()->setSavedValue("ui", false);
+    Mod::get()->setSavedValue("keybinds", false);
 }
 
 #include <Geode/modify/PauseLayer.hpp>
@@ -28,7 +32,7 @@ class $modify(MyPauseLayer, PauseLayer) {
 
         auto baseButtonSprite = CCSprite::create("checkpoint-switcher-button-base.png"_spr);
         auto buttonSprite = CircleButtonSprite::create(baseButtonSprite, CircleBaseColor::Green, CircleBaseSize::Large);
-        buttonSprite->setScale(.385f); // lol....
+        buttonSprite->setScale(.385f); 
         CCMenuItemSpriteExtra* button = CCMenuItemSpriteExtra::create(buttonSprite, this, menu_selector(MyPauseLayer::onCheckpointSwitcher));    
         menu->addChild(button);
         menu->updateLayout();
@@ -36,7 +40,7 @@ class $modify(MyPauseLayer, PauseLayer) {
         button->setID("checkpoint-switcher-button"_spr);
     }
 
-    void onCheckpointSwitcher(CCObject* sender) {
+    void onCheckpointSwitcher(CCObject*) {
         CheckpointSwitcherLayer::create()->show();
     }
         

@@ -43,6 +43,8 @@
 **/build
 # Ignore platform specific build folders
 build-*/
+# Ignore Build Output folder
+Build Output
 # Ignore build zip folder
 *.zip
 
@@ -64,3 +66,6 @@ build-*/
 # CLion
 .idea/
 /cmake-build-*/
+
+# Why isn't it here by default
+*.sym

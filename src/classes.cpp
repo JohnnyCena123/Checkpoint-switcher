@@ -17,12 +17,12 @@ class $modify(MyCheckpointObject, CheckpointObject) {
 		Ref<CCTexture2D> m_screenshot;
 	};
 
-	bool init() {
-		if (!CheckpointObject::init()) return false;
+	// bool init() {
+	// 	if (!CheckpointObject::init()) return false;
 	
 	
-		return true;
-	}
+	// 	return true;
+	// }
 
 };
 
@@ -33,6 +33,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool m_isPracticeMode;
 
 		bool m_hasCheckpointChanged;
+		bool m_newCheckpointPlaced;
 
 		CheckpointObject* m_selectedCheckpoint;
 	};
@@ -47,28 +48,29 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_currentCheckpoint = checkpoint;
 		m_fields->m_selectedCheckpoint = checkpoint;
 		m_fields->m_hasCheckpointChanged = true;
+		m_fields->m_newCheckpointPlaced = false;
 	}
 
 	void loadFromCheckpoint(CheckpointObject* checkpoint) {
 
 		auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
-		if (selectedCheckpoint && Mod::get()->getSavedValue<bool>("is-switcher-on")) {
+		if (!m_fields->m_newCheckpointPlaced && selectedCheckpoint && Mod::get()->getSavedValue<bool>("is-switcher-on")) {
 			PlayLayer::loadFromCheckpoint(selectedCheckpoint);
-			log::debug("loading from the selected checkpoint at address {}!", static_cast<void*>(selectedCheckpoint));
-		} else {
+	} else {
 			PlayLayer::loadFromCheckpoint(checkpoint);
-			log::debug("loading from the passed checkpoint at address {}!", static_cast<void*>(checkpoint));
-		}
+	}
 	}
 
 	void resume() {
 		PlayLayer::resume();
 		if (!Mod::get()->getSavedValue<bool>("is-switcher-on")) return;
 
+
 		auto selectedCheckpoint = m_fields->m_selectedCheckpoint;
 		if (m_fields->m_hasCheckpointChanged) {
 			if (selectedCheckpoint) {
-				// storeCheckpoint(selectedCheckpoint);
+				m_checkpointArray->removeObject(selectedCheckpoint);
+				storeCheckpoint(selectedCheckpoint);
 				m_currentCheckpoint = selectedCheckpoint;
 			}
 			resetLevel();
@@ -79,6 +81,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 	bool getIsPracticeMode() {
 		return m_fields->m_isPracticeMode;
+
 	}
 
 	CCArray* getCheckpoints() {
@@ -88,16 +91,22 @@ class $modify(MyPlayLayer, PlayLayer) {
 	CheckpointObject* createCheckpoint() {
 		auto ret = PlayLayer::createCheckpoint();
 		if (ret) static_cast<MyCheckpointObject*>(ret)->m_fields->m_currentPrecentage = this->getCurrentPercent();
+
+		m_fields->m_newCheckpointPlaced = true;
 		
-		if (Mod::get()->getSettingValue<bool>("EnablePreviews")) {
+		if (Mod::get()->getSettingValue<bool>("enable-previews")) {
 			auto winSize = CCDirector::get()->getWinSize();
 			auto renderTexture = CCRenderTexture::create(winSize.width, winSize.height);
 			renderTexture->begin();
-			this->visit();
+			CCScene::get()->visit();
 			renderTexture->end();
 
 			static_cast<MyCheckpointObject*>(ret)->m_fields->m_screenshot = renderTexture->getSprite()->getTexture();
-		}
+			auto spr = CCSprite::createWithTexture(renderTexture->getSprite()->getTexture());
+			if (!spr) log::error("placed checkpoint, but failed to render screenshot.");
+			spr->setScale(.5f);
+			ret->addChild(spr);
+		}                           
 
 		return ret;
 	}
@@ -109,7 +118,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 		else removedCheckpoint = static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(0));
 
 		if (removedCheckpoint == m_currentCheckpoint) {
-			m_currentCheckpoint = m_checkpointArray->count() ? static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(m_checkpointArray->count() - 1)) : nullptr;
+			m_currentCheckpoint = m_checkpointArray->count() ? 
+			static_cast<CheckpointObject*>(m_checkpointArray->objectAtIndex(m_checkpointArray->count() - 1)) : 
+			nullptr;
 			m_fields->m_selectedCheckpoint = nullptr;
 		}
 		PlayLayer::removeCheckpoint(p0);
@@ -151,11 +162,11 @@ bool CheckpointSwitcherLayer::setup() {
 		m_toggleSwitcherButtonSprite, this, menu_selector(CheckpointSwitcherLayer::onToggleSwitcher)
 	);
 	m_toggleSwitcherButton->ignoreAnchorPointForPosition(true);
-	m_buttonMenu->addChildAtPosition(m_toggleSwitcherButton, Anchor::BottomLeft, ccp(10.f, 10.f));
+	m_buttonMenu->addChildAtPosition(m_toggleSwitcherButton, Anchor::BottomLeft, {10.f, 10.f});
 	
 	m_toggleSwitcherButtonLabel = CCLabelBMFont::create("Enable the switcher!", "bigFont.fnt");
 	m_toggleSwitcherButtonLabel->setScale(0.33333f);
-	m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, ccp(110.f, 25.f));
+	m_mainLayer->addChildAtPosition(m_toggleSwitcherButtonLabel, Anchor::BottomLeft, {110.f, 25.f});
 
 	m_applyButtonEnabledSprite = ButtonSprite::create("Apply");
 	m_applyButtonDisabledSprite = ButtonSprite::create("Apply");
@@ -167,7 +178,7 @@ bool CheckpointSwitcherLayer::setup() {
 	);
 	m_applyButton->setEnabled(false);
 	m_applyButton->setOpacity(30);
-	m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, ccp(0, m_applyButton->getContentHeight() / 2.f + 10.f));
+	m_buttonMenu->addChildAtPosition(m_applyButton, Anchor::Bottom, {0, m_applyButton->getContentHeight() / 2.f + 10.f});
 
 	m_checkpointSelectorMenu = CCMenu::create();
 	m_checkpointSelectorMenu->setLayout(
@@ -223,7 +234,7 @@ bool CheckpointSwitcherLayer::setup() {
 		m_progressBarCloneFill = CCSprite::create("sliderBar2.png");
 		m_progressBarCloneFill->setColor(ccc3(125, 255, 0));
 		m_progressBarCloneFill->setContentSize(progressBarFilling->getContentSize());
-		m_progressBarCloneFill->setAnchorPoint(ccp(0.f, 0.f));
+		m_progressBarCloneFill->setAnchorPoint({0.f, 0.f});
 		m_progressBarCloneFill->setZOrder(-1);
 		m_progressBarCloneFill->setTextureRect({
 			0, 0,
@@ -232,14 +243,14 @@ bool CheckpointSwitcherLayer::setup() {
 		});
 		ccTexParams texParams = {GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT};
 		m_progressBarCloneFill->getTexture()->setTexParameters(&texParams);
-		m_progressBarClone->addChildAtPosition(m_progressBarCloneFill, Anchor::BottomLeft, ccp(2.f, 4.f));
+		m_progressBarClone->addChildAtPosition(m_progressBarCloneFill, Anchor::BottomLeft, {2.f, 4.f});
 		m_mainLayer->addChildAtPosition(m_progressBarClone, Anchor::Center, progressBar->getPosition() - CCDirector::get()->getWinSize() / 2);
 	
 		m_progressBarClone->setID("progress-bar-clone");
 		m_progressBarCloneFill->setID("progress-bar-clone-filling");
 	
 		m_checkpointIndicatorsNode = CCNode::create();
-		m_checkpointIndicatorsNode->setAnchorPoint(ccp(0.5f, 0.5f));
+		m_checkpointIndicatorsNode->setAnchorPoint({0.5f, 0.5f});
 		m_checkpointIndicatorsNode->setContentSize({progressBar->getContentWidth(), 8.f});
 		m_progressBarClone->addChildAtPosition(m_checkpointIndicatorsNode, Anchor::Center);
 	
@@ -257,14 +268,14 @@ bool CheckpointSwitcherLayer::setup() {
 			
 			auto checkpointIndicatorSprite = CCSprite::createWithSpriteFrameName("checkpoint_01_001.png");
 			auto checkpointIndicatorLine = CCLabelBMFont::create("|", "chatFont.fnt");
-			checkpointIndicatorSprite->setAnchorPoint(ccp(0.5f, 0.f));
-			checkpointIndicatorLine->setAnchorPoint(ccp(0.5f, 0.f));
+			checkpointIndicatorSprite->setAnchorPoint({0.5f, 0.f});
+			checkpointIndicatorLine->setAnchorPoint({0.5f, 0.f});
 			checkpointIndicatorSprite->setScale(0.5f);
-			checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, ccp(0.f, 2.f));
-			m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, ccp(
+			checkpointIndicatorSprite->addChildAtPosition(checkpointIndicatorLine, Anchor::Top, {0.f, 2.f});
+			m_checkpointIndicatorsNode->addChildAtPosition(checkpointIndicatorSprite, Anchor::BottomLeft, {
 				progressBar->getContentWidth() * checkpoint->m_fields->m_currentPrecentage / 100.f + 2.f,
 				- checkpointIndicatorLine->getContentHeight() - 6.f 
-			));
+			});
 
 			checkpointIndicatorLine->setID(fmt::format("checkpoint-indicator-line-no-{}", i + 1).c_str());
 			checkpointIndicatorSprite->setID(fmt::format("checkpoint-indicator-no-{}", i + 1).c_str());
@@ -352,9 +363,16 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
 	m_buttonID = buttonID;
 	m_checkpoint = checkpoint;
 
+	if(!m_checkpoint->m_fields->m_screenshot.data()) log::error("failed to save screenshot.");
+
 	m_buttonSprite = Mod::get()->getSettingValue<bool>("enable-previews") ? 
 	CCSprite::createWithSpriteFrameName("checkpoint_01_001.png") : 
 	CCSprite::createWithTexture(m_checkpoint->m_fields->m_screenshot.data());
+	if (!m_buttonSprite) {
+		log::error("button sprite failed to initialize.");
+		hasFailed = true;
+	}
+
 
 	m_buttonSprite->setScale(80 / m_buttonSprite->getContentHeight());
 	m_mainNode = CCNode::create();
@@ -366,16 +384,16 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
 		hasFailed = true;
 	}
 
-	if (!Mod::get()->getSettingValue<bool>("enable-previews")) {
-		m_buttonOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png");
-		m_checkpointGlowOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_glow_001.png");
-	} else {
-		m_buttonOutline = CCSprite::createWithSpriteFrameName("d_whiteBlock_01_001.png");
+	if (Mod::get()->getSettingValue<bool>("enable-previews")) {
 		m_buttonOutline->setScaleX((m_buttonSprite->getContentWidth() + 5.f) / m_buttonOutline->getContentWidth());
 		m_buttonOutline->setScaleY((m_buttonSprite->getContentHeight() + 5.f) / m_buttonOutline->getContentHeight());
 		m_buttonOutline->setZOrder(-1);
 		m_checkpointGlowOutline = CCSprite::createWithSpriteFrameName("square_01_glow_001.png");
 		m_checkpointGlowOutline->setZOrder(-1);
+	} else {
+		m_buttonOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_color_001.png");
+		m_checkpointGlowOutline = CCSprite::createWithSpriteFrameName("checkpoint_01_glow_001.png");
+		m_buttonOutline = CCSprite::createWithSpriteFrameName("d_whiteBlock_01_001.png");
 	}
 
 	m_buttonOutline->setColor(ccc3(255, 243, 69));
@@ -384,9 +402,13 @@ bool CheckpointSelectorButton::init(int buttonID, MyCheckpointObject* checkpoint
 	m_buttonSprite->addChildAtPosition(m_buttonOutline, Anchor::Center);
 	m_buttonOutline->addChildAtPosition(m_checkpointGlowOutline, Anchor::Center);
 
-	m_buttonLabel = CCLabelBMFont::create(m_checkpoint ? fmt::format("Checkpoint at {:.4}%", m_checkpoint->m_fields->m_currentPrecentage).c_str() : "The start!", "bigFont.fnt");
-	m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Top, ccp(0.f, 10.f));
-	m_buttonLabel->setScale(0.4);
+	m_buttonLabel = CCLabelBMFont::create(
+		m_checkpoint ? 
+		fmt::format("Checkpoint at {:.4}%", m_checkpoint->m_fields->m_currentPrecentage).c_str() : 
+		"The start!", "bigFont.fnt"
+	);
+	m_mainNode->addChildAtPosition(m_buttonLabel, Anchor::Top, {0.f, 10.f});
+	m_buttonLabel->setScale(.4f);
 
 	m_mainNode->setID("main-node");
 	m_buttonSprite->setID("checkpoint-sprite");
@@ -419,7 +441,7 @@ void CheckpointSelectorButton::onSelectButton(CCObject* sender) {
 
 void CheckpointSelectorButton::changeScale(bool toScaleUp) {
 	if (toScaleUp != m_isScaledUp) {
-		m_mainNode->runAction(CCEaseInOut::create(CCScaleTo::create(0.1f, toScaleUp ? 1.25f : 1.f), 2.f));
+		m_mainNode->runAction(CCEaseInOut::create(CCScaleTo::create(.1f, toScaleUp ? 1.25f : 1.f), 2.f));
 		m_isScaledUp = toScaleUp;
 	}
 }
